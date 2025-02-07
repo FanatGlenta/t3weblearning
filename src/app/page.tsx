@@ -1,35 +1,40 @@
 import Link from "next/link";
+import Navbar from "~/components/Navbar";
+
+const homeLinks = [
+  { title: "Интернет-магазин", link: "/shop" },
+  { title: "Калькулятор", link: "/lab2" },
+  { title: "Сайт ИКНТ", link: "/iknt" },
+] as const;
 
 export default function HomePage() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c] text-white">
-      <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16">
-        <h1 className="text-5xl font-extrabold tracking-tight text-white sm:text-[5rem]">
-          Create <span className="text-[hsl(280,100%,70%)]">T3</span> App
-        </h1>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-8">
-          <Link
-            className="flex max-w-xs flex-col gap-4 rounded-xl bg-white/10 p-4 text-white hover:bg-white/20"
-            href="https://create.t3.gg/en/usage/first-steps"
-            target="_blank"
-          >
-            <h3 className="text-2xl font-bold">First Steps →</h3>
-            <div className="text-lg">
-              Just the basics - Everything you need to know to set up your
-              database and authentication.
-            </div>
-          </Link>
-          <Link
-            className="flex max-w-xs flex-col gap-4 rounded-xl bg-white/10 p-4 text-white hover:bg-white/20"
-            href="https://create.t3.gg/en/introduction"
-            target="_blank"
-          >
-            <h3 className="text-2xl font-bold">Documentation →</h3>
-            <div className="text-lg">
-              Learn more about Create T3 App, the libraries it uses, and how to
-              deploy it.
-            </div>
-          </Link>
+    <main className="flex h-screen flex-col bg-gray-100 text-gray-900">
+      <Navbar links={homeLinks} />
+
+      <div className="flex flex-1 items-center justify-center px-6">
+        <div className="text-center">
+          <h1 className="text-5xl font-extrabold text-gray-800 drop-shadow-md">
+            Лабораторные работы
+          </h1>
+          <p className="mt-4 text-lg text-gray-700">
+            Выберите лабораторную работу, чтобы начать изучение.
+          </p>
+
+          <div className="mt-12 grid w-full max-w-3xl grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
+            {homeLinks.map((item) => (
+              <Link
+                key={item.link}
+                href={item.link}
+                className="relative flex h-20 items-center justify-center rounded-xl bg-gradient-to-r from-blue-500 to-indigo-500 text-lg font-semibold text-white shadow-md transition-all duration-300 hover:scale-110 hover:shadow-xl"
+              >
+                <span className="absolute inset-0 rounded-xl bg-white opacity-10 transition-opacity duration-300 hover:opacity-20"></span>
+                <span className="relative z-10 px-6 text-center">
+                  {item.title}
+                </span>
+              </Link>
+            ))}
+          </div>
         </div>
       </div>
     </main>
