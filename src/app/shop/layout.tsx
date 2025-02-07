@@ -10,9 +10,10 @@ function getNavLinks(isAuthenticated: boolean): NavLink[] {
   return isAuthenticated
     ? [
         { title: "Каталог", link: "/shop" },
-        { title: "Доставка", link: "/shop/delivery" },
+        { title: "О компании", link: "/shop/about" },
         { title: "Корзина", link: "/shop/cart" },
         { title: "Профиль", link: "/shop/profile" },
+
         {
           title: "Выйти",
           action: () => {
@@ -21,6 +22,7 @@ function getNavLinks(isAuthenticated: boolean): NavLink[] {
         },
       ]
     : [
+        { title: "О компании", link: "/shop/about" }, // Добавляем ссылку для гостей
         { title: "Вход", link: "/shop/login" },
         { title: "Регистрация", link: "/shop/registration" },
       ];
@@ -41,7 +43,7 @@ export default function ShopLayout({
   return (
     <>
       <Navbar key={session?.user?.id || "guest"} links={shopLinks} />
-      <main className="bg-gray-100">{children}</main>
+      <div className="bg-gray-100">{children}</div>
     </>
   );
 }

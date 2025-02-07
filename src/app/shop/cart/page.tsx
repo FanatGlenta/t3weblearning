@@ -1,9 +1,27 @@
 "use client";
 
+import { useEffect } from "react";
 import { useCartStore } from "~/store/useCartStore";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 export default function CartPage() {
-  const { cart, removeFromCart, updateQuantity, clearCart } = useCartStore();
+  const { cart, fetchCart, removeFromCart, updateQuantity, clearCart } =
+    useCartStore();
+  const { data: session } = useSession();
+  const router = useRouter();
+  const userId = session?.user?.id ?? "";
+
+  useEffect(() => {
+    if (userId) {
+      fetchCart(userId);
+    }
+  }, [userId]);
+
+  const totalPrice = cart.reduce(
+    (total, item) => total + item.price * item.quantity,
+    0,
+  );
 
   return (
     <div className="mx-auto max-w-2xl p-4">
@@ -17,7 +35,7 @@ export default function CartPage() {
             {cart.map((item) => (
               <li
                 key={item.id}
-                className="flex items-center justify-between rounded border p-4"
+                className="flex items-center justify-between rounded border p-4 shadow-sm"
               >
                 <img
                   src={item.imageUrl}
@@ -31,24 +49,30 @@ export default function CartPage() {
                     {item.price * item.quantity}₽
                   </p>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center space-x-2">
                   <button
-                    onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                    onClick={() =>
+                      updateQuantity(userId, item.id, item.quantity - 1)
+                    }
                     disabled={item.quantity <= 1}
-                    className="rounded bg-gray-200 px-3 py-1"
+                    className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-300 font-bold text-gray-700 transition hover:bg-gray-400 disabled:bg-gray-200 disabled:text-gray-400"
                   >
                     -
                   </button>
-                  <span>{item.quantity}</span>
+                  <span className="px-3 py-1 text-lg font-semibold">
+                    {item.quantity}
+                  </span>
                   <button
-                    onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                    className="rounded bg-gray-200 px-3 py-1"
+                    onClick={() =>
+                      updateQuantity(userId, item.id, item.quantity + 1)
+                    }
+                    className="flex h-8 w-8 items-center justify-center rounded-full bg-green-500 font-bold text-white transition hover:bg-green-600"
                   >
                     +
                   </button>
                   <button
-                    onClick={() => removeFromCart(item.id)}
-                    className="rounded bg-red-500 px-3 py-1 text-white"
+                    onClick={() => removeFromCart(userId, item.id)}
+                    className="ml-2 flex h-8 w-8 items-center justify-center rounded-full bg-red-500 font-bold text-white transition hover:bg-red-600"
                   >
                     ✕
                   </button>
@@ -56,12 +80,29 @@ export default function CartPage() {
               </li>
             ))}
           </ul>
-          <button
-            onClick={clearCart}
-            className="mt-4 block w-full rounded bg-red-500 px-4 py-2 text-white hover:bg-red-600"
-          >
-            Очистить корзину
-          </button>
+          {/* Итоговая сумма */}
+          <div className="mt-6 flex items-center justify-between rounded-lg bg-gray-100 p-4">
+            <span className="text-lg font-semibold">Сумма заказа:</span>
+            <span className="text-xl font-bold text-green-600">
+              {totalPrice} ₽
+            </span>
+          </div>
+
+          {/* Кнопки действий */}
+          <div className="mt-4 space-y-2">
+            <button
+              onClick={() => clearCart(userId)}
+              className="w-full rounded bg-red-500 px-4 py-2 font-bold text-white transition hover:bg-red-600"
+            >
+              Очистить корзину
+            </button>
+            <button
+              onClick={() => router.push("/shop/checkout")}
+              className="w-full rounded bg-blue-500 px-4 py-2 font-bold text-white transition hover:bg-blue-600"
+            >
+              Оформить заказ
+            </button>
+          </div>
         </>
       )}
     </div>

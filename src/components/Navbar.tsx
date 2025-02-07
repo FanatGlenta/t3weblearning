@@ -23,7 +23,7 @@ export default function Navbar({ links }: NavbarProps) {
         href="/"
         className="text-xl font-bold transition duration-300 hover:text-gray-200"
       >
-        Лабораторные работы
+        FanatGlenta
       </Link>
 
       {/* Десктопное меню */}

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useCartStore } from "~/store/useCartStore";
+import { useSession } from "next-auth/react";
 
 interface Product {
   id: number;
@@ -12,11 +13,17 @@ interface Product {
 }
 
 export default function ProductCard({ product }: { product: Product }) {
+  const { data: session } = useSession();
+  const userId = session?.user?.id ?? ""; // Проверяем userId
   const addToCart = useCartStore((state) => state.addToCart);
   const [quantity, setQuantity] = useState(1);
 
   const handleAddToCart = () => {
-    addToCart({ ...product, quantity });
+    if (!userId) {
+      alert("Вы должны войти в систему, чтобы добавить товары в корзину!");
+      return;
+    }
+    addToCart(userId, { ...product, quantity }); // Передаем userId первым аргументом
   };
 
   return (
