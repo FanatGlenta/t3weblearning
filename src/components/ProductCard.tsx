@@ -1,4 +1,8 @@
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
+import { useCartStore } from "~/store/useCartStore";
 
 interface Product {
   id: number;
@@ -8,6 +12,13 @@ interface Product {
 }
 
 export default function ProductCard({ product }: { product: Product }) {
+  const addToCart = useCartStore((state) => state.addToCart);
+  const [quantity, setQuantity] = useState(1);
+
+  const handleAddToCart = () => {
+    addToCart({ ...product, quantity });
+  };
+
   return (
     <div className="rounded-lg bg-white p-4 shadow-lg transition-transform hover:scale-105">
       <img
@@ -17,6 +28,30 @@ export default function ProductCard({ product }: { product: Product }) {
       />
       <h3 className="mt-2 text-xl font-semibold">{product.name}</h3>
       <p className="text-gray-600">Цена: {product.price}₽</p>
+
+      <div className="mt-2 flex items-center gap-2">
+        <button
+          onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+          className="rounded bg-gray-200 px-3 py-1 text-xl"
+        >
+          -
+        </button>
+        <span className="text-lg font-semibold">{quantity}</span>
+        <button
+          onClick={() => setQuantity((q) => q + 1)}
+          className="rounded bg-gray-200 px-3 py-1 text-xl"
+        >
+          +
+        </button>
+      </div>
+
+      <button
+        onClick={handleAddToCart}
+        className="mt-2 block w-full rounded bg-green-500 px-4 py-2 text-white hover:bg-green-600"
+      >
+        Добавить в корзину
+      </button>
+
       <Link
         href={`/shop/product/${product.id}`}
         className="mt-2 block rounded bg-blue-500 px-4 py-2 text-center text-white hover:bg-blue-600"

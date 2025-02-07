@@ -34,6 +34,30 @@ export const products = createTable(
   }),
 );
 
+export const carts = createTable(
+  "cart",
+  {
+    id: integer("id").primaryKey().generatedByDefaultAsIdentity(),
+    userId: varchar("user_id", { length: 255 })
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    productId: integer("product_id")
+      .notNull()
+      .references(() => products.id, { onDelete: "cascade" }),
+    quantity: integer("quantity").notNull().default(1),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).$onUpdate(
+      () => new Date(),
+    ),
+  },
+  (cart) => ({
+    userIdIdx: index("cart_user_id_idx").on(cart.userId),
+    productIdIdx: index("cart_product_id_idx").on(cart.productId),
+  }),
+);
+
 export const posts = createTable(
   "post",
   {
