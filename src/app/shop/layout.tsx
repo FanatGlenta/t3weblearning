@@ -13,13 +13,6 @@ function getNavLinks(isAuthenticated: boolean): NavLink[] {
         { title: "О компании", link: "/shop/about" },
         { title: "Корзина", link: "/shop/cart" },
         { title: "Профиль", link: "/shop/profile" },
-
-        {
-          title: "Выйти",
-          action: () => {
-            signOut({ callbackUrl: "/" });
-          },
-        },
       ]
     : [
         { title: "О компании", link: "/shop/about" }, // Добавляем ссылку для гостей
