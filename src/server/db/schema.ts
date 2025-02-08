@@ -22,6 +22,9 @@ export const products = createTable(
     description: text("description"),
     price: integer("price").notNull(),
     imageUrl: varchar("image_url", { length: 255 }),
+    createdById: varchar("created_by_id", { length: 255 })
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
     createdAt: timestamp("created_at", { withTimezone: true })
       .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),
@@ -31,6 +34,7 @@ export const products = createTable(
   },
   (product) => ({
     nameIndex: index("product_name_idx").on(product.name),
+    createdByIdIndex: index("product_created_by_idx").on(product.createdById),
   }),
 );
 

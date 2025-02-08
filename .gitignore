@@ -8,6 +8,9 @@
 # testing
 /coverage
 
+# загрузка фоток в папку
+uploads
+
 # database
 /prisma/db.sqlite
 /prisma/db.sqlite-journal

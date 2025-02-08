@@ -5,11 +5,6 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useState, useEffect } from "react";
 import { FiTrash2 } from "react-icons/fi";
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation, Pagination } from "swiper/modules";
-import "swiper/css";
-import "swiper/css/navigation";
-import "swiper/css/pagination";
 import Photo from "../../../../public/assets/wb.png";
 
 type Order = {
@@ -19,17 +14,32 @@ type Order = {
   items: { name: string; quantity: number }[];
 };
 
+type Product = {
+  id: number;
+  name: string;
+  price: number;
+  imageUrl: string;
+  createdById: string;
+};
+
 export default function UserProfile() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [orders, setOrders] = useState<Order[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [showAddProduct, setShowAddProduct] = useState(false);
+  const [productName, setProductName] = useState("");
+  const [productPrice, setProductPrice] = useState("");
+  const [productImage, setProductImage] = useState<File | null>(null);
 
   useEffect(() => {
     if (session?.user) {
       fetchOrders();
+      fetchProducts();
     }
   }, [session]);
 
+  // Получение заказов пользователя
   const fetchOrders = async () => {
     try {
       const response = await fetch(
@@ -44,6 +54,25 @@ export default function UserProfile() {
     }
   };
 
+  // Получение товаров пользователя
+  const fetchProducts = async () => {
+    try {
+      const response = await fetch(
+        `/api/shop/products?userId=${session?.user?.id}`,
+      );
+      if (response.ok) {
+        const data: Product[] = await response.json();
+        console.log("Загруженные товары:", data);
+        setProducts(
+          data.filter((product) => product.createdById === session?.user?.id),
+        );
+      }
+    } catch (error) {
+      console.error("Ошибка загрузки товаров:", error);
+    }
+  };
+
+  // Удаление заказа
   const handleDeleteOrder = async (orderId: number) => {
     try {
       const response = await fetch("/api/shop/orders", {
@@ -59,6 +88,83 @@ export default function UserProfile() {
       }
     } catch (error) {
       console.error("Ошибка удаления заказа:", error);
+    }
+  };
+
+  // Добавление товара
+  const handleAddProduct = async () => {
+    if (!productName || !productPrice || !productImage) {
+      alert("Заполните все поля!");
+      return;
+    }
+
+    // Конвертируем файл в base64
+    const reader = new FileReader();
+    reader.readAsDataURL(productImage);
+    reader.onload = async () => {
+      const base64String = reader.result?.toString().split(",")[1]; // Убираем метаданные
+      const filename = `${Date.now()}-${productImage.name}`;
+
+      if (!base64String) {
+        alert("Ошибка конвертации изображения");
+        return;
+      }
+
+      // Загружаем изображение
+      const uploadResponse = await fetch("/api/shop/upload-photo", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ image: base64String, filename }),
+      });
+
+      const uploadData = await uploadResponse.json();
+      if (!uploadData.filePath) {
+        alert("Ошибка загрузки изображения");
+        return;
+      }
+
+      const imageUrl = uploadData.filePath; // URL загруженного изображения
+
+      // Добавляем товар в базу данных
+      const response = await fetch("/api/shop/create-products", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: productName,
+          price: productPrice,
+          imageUrl,
+          userId: session?.user?.id,
+        }),
+      });
+
+      if (response.ok) {
+        fetchProducts();
+        setShowAddProduct(false);
+        setProductName("");
+        setProductPrice("");
+        setProductImage(null);
+      } else {
+        alert("Ошибка при добавлении товара");
+      }
+    };
+  };
+
+  // Удаление товара
+  const handleDeleteProduct = async (productId: number) => {
+    try {
+      const response = await fetch("/api/shop/create-products", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productId, userId: session?.user?.id }),
+      });
+
+      if (response.ok) {
+        setProducts(products.filter((product) => product.id !== productId));
+      } else {
+        alert("Ошибка при удалении товара");
+      }
+    } catch (error) {
+      console.error("Ошибка удаления товара:", error);
     }
   };
 
@@ -78,7 +184,6 @@ export default function UserProfile() {
       <h1 className="mb-6 text-center text-2xl font-bold">
         Профиль пользователя
       </h1>
-
       <div className="relative flex flex-col items-center">
         <div className="relative h-32 w-32">
           <Image
@@ -90,7 +195,6 @@ export default function UserProfile() {
           />
         </div>
       </div>
-
       <div className="mt-6 text-center">
         <p className="text-lg">
           <strong>Имя:</strong> {user.name ?? "Не указано"}
@@ -99,6 +203,87 @@ export default function UserProfile() {
           <strong>Почта:</strong> {user.email ?? "Не указано"}
         </p>
       </div>
+      {/* Список товаров пользователя */}
+      <div className="mt-6">
+        <h2 className="mb-4 text-xl font-bold">Мои товары</h2>
+        <button
+          onClick={() => setShowAddProduct(true)}
+          className="mb-4 rounded bg-green-500 px-4 py-2 text-white"
+        >
+          + Добавить товар
+        </button>
+
+        {products.length === 0 ? (
+          <p className="text-gray-500">Вы еще не добавили товары.</p>
+        ) : (
+          <ul className="grid grid-cols-1 gap-4">
+            {products.map((product) => (
+              <li
+                key={product.id}
+                className="flex items-center justify-between rounded-lg border p-4 shadow-md"
+              >
+                <div className="flex items-center space-x-4">
+                  <img
+                    src={product.imageUrl}
+                    alt={product.name}
+                    className="h-16 w-16 rounded-lg object-cover"
+                  />
+                  <div>
+                    <p className="font-semibold">{product.name}</p>
+                    <p className="text-gray-700">₽{product.price}</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => handleDeleteProduct(product.id)}
+                  className="rounded bg-red-500 px-2 py-1 text-white hover:bg-red-600"
+                >
+                  <FiTrash2 />
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+      {/* Попап добавления товара */}
+      {showAddProduct && (
+        <div className="fixed inset-0 flex items-center justify-center bg-gray-700 bg-opacity-50">
+          <div className="rounded-lg bg-white p-6 shadow-lg">
+            <h2 className="mb-4 text-xl font-bold">Добавить товар</h2>
+            <input
+              type="text"
+              placeholder="Название"
+              value={productName}
+              onChange={(e) => setProductName(e.target.value)}
+              className="mb-2 w-full border p-2"
+            />
+            <input
+              type="number"
+              placeholder="Цена"
+              value={productPrice}
+              onChange={(e) => setProductPrice(e.target.value)}
+              className="mb-2 w-full border p-2"
+            />
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => setProductImage(e.target.files?.[0] || null)}
+              className="mb-2 w-full border p-2"
+            />
+            <button
+              onClick={handleAddProduct}
+              className="w-full rounded bg-blue-500 px-4 py-2 text-white"
+            >
+              Добавить
+            </button>
+            <button
+              onClick={() => setShowAddProduct(false)}
+              className="mt-2 text-gray-500"
+            >
+              Отмена
+            </button>
+          </div>
+        </div>
+      )}
 
       <div className="mt-6">
         <h2 className="mb-4 text-xl font-bold">Мои заказы</h2>
@@ -132,7 +317,6 @@ export default function UserProfile() {
           </ul>
         )}
       </div>
-
       <div className="mt-6">
         <button
           onClick={() => signOut({ callbackUrl: "/" })}
