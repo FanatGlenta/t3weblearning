@@ -200,7 +200,7 @@ export default function CheckoutPage() {
 
           <div className="mt-6 flex flex-col space-y-2">
             <button
-              onClick={() => router.push("/cart")}
+              onClick={() => router.push("/shop/cart")}
               className="w-full rounded bg-gray-500 px-4 py-2 font-bold text-white transition hover:bg-gray-600"
             >
               Вернуться к корзине
