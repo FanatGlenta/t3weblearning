@@ -47,9 +47,26 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    await db.insert(carts).values({ userId, productId, quantity });
+    // Проверяем, есть ли товар уже в корзине
+    const existingCartItem = await db
+      .select()
+      .from(carts)
+      .where(and(eq(carts.userId, userId), eq(carts.productId, productId)))
+      .limit(1);
+
+    if (existingCartItem.length > 0 && existingCartItem[0]) {
+      // Убедимся, что объект существует перед доступом к .quantity
+      await db
+        .update(carts)
+        .set({ quantity: existingCartItem[0].quantity + quantity })
+        .where(and(eq(carts.userId, userId), eq(carts.productId, productId)));
+    } else {
+      // Если товара нет, создаем новую запись
+      await db.insert(carts).values({ userId, productId, quantity });
+    }
+
     return NextResponse.json(
-      { message: "Товар добавлен в корзину" },
+      { message: "Товар добавлен/обновлен в корзине" },
       { status: 201 },
     );
   } catch (error) {

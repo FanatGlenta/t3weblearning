@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useCartStore } from "~/store/useCartStore";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import Input from "~/components/Input"; // Импортируем компонент Input
+import Input from "~/components/Input";
 
 export default function CheckoutPage() {
   const { cart, fetchCart } = useCartStore();
@@ -34,9 +34,25 @@ export default function CheckoutPage() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = () => {
-    alert("Заказ оформлен!");
-    router.push("/");
+  const handleSubmit = async () => {
+    if (!userId) return;
+
+    try {
+      const response = await fetch("/api/shop/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId, cart }),
+      });
+
+      if (response.ok) {
+        alert("Заказ оформлен!");
+        router.push("/shop/profile");
+      } else {
+        alert("Ошибка при оформлении заказа");
+      }
+    } catch (error) {
+      console.error("Ошибка при оформлении заказа:", error);
+    }
   };
 
   const totalPrice = cart.reduce(

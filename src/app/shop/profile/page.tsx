@@ -3,21 +3,26 @@
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { useState, useRef, useEffect } from "react";
-import { FiCamera, FiTrash2 } from "react-icons/fi"; // Иконки
+import { useState, useEffect } from "react";
+import { FiTrash2 } from "react-icons/fi";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Navigation, Pagination } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/pagination";
+import Photo from "../../../../public/assets/wb.png";
 
 type Order = {
   id: number;
   total: number;
+  createdAt: string;
   items: { name: string; quantity: number }[];
 };
 
 export default function UserProfile() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const [avatar, setAvatar] = useState<File | null>(null);
   const [orders, setOrders] = useState<Order[]>([]);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (session?.user) {
@@ -27,13 +32,33 @@ export default function UserProfile() {
 
   const fetchOrders = async () => {
     try {
-      const response = await fetch("/api/orders"); // Запрос к API заказов
+      const response = await fetch(
+        `/api/shop/orders?userId=${session?.user?.id}`,
+      );
       if (response.ok) {
         const data = await response.json();
         setOrders(data);
       }
     } catch (error) {
       console.error("Ошибка загрузки заказов:", error);
+    }
+  };
+
+  const handleDeleteOrder = async (orderId: number) => {
+    try {
+      const response = await fetch("/api/shop/orders", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderId }),
+      });
+
+      if (response.ok) {
+        setOrders(orders.filter((order) => order.id !== orderId));
+      } else {
+        alert("Ошибка при удалении заказа");
+      }
+    } catch (error) {
+      console.error("Ошибка удаления заказа:", error);
     }
   };
 
@@ -48,47 +73,8 @@ export default function UserProfile() {
 
   const user = session.user;
 
-  const handleAvatarChange = async (
-    event: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    if (event.target.files && event.target.files[0]) {
-      const file = event.target.files[0];
-      setAvatar(file);
-
-      const formData = new FormData();
-      formData.append("avatar", file);
-
-      const response = await fetch("/api/upload-avatar", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (response.ok) {
-        router.refresh();
-      }
-    }
-  };
-
-  const handleRemoveAvatar = async () => {
-    const response = await fetch("/api/remove-avatar", {
-      method: "POST",
-    });
-
-    if (response.ok) {
-      router.refresh();
-    }
-  };
-
-  const handleAddStore = () => {
-    router.push("/add-store");
-  };
-
-  const handleLogout = () => {
-    signOut({ callbackUrl: "/" });
-  };
-
   return (
-    <div className="mx-auto max-w-md rounded-lg bg-white p-6 shadow-lg">
+    <div className="relative mx-auto max-w-md rounded-lg bg-white p-6 shadow-lg">
       <h1 className="mb-6 text-center text-2xl font-bold">
         Профиль пользователя
       </h1>
@@ -96,40 +82,13 @@ export default function UserProfile() {
       <div className="relative flex flex-col items-center">
         <div className="relative h-32 w-32">
           <Image
-            src={user.image || "/default-avatar.png"}
-            alt="Avatar"
+            src={Photo}
+            alt="Фото профиля"
             width={128}
             height={128}
-            className="rounded-full border-4 border-gray-300 text-center shadow-lg"
-          />
-
-          {/* Кнопка загрузки аватара */}
-          <button
-            onClick={() => fileInputRef.current?.click()}
-            className="absolute bottom-0 right-0 rounded-full bg-gray-800 p-2 text-white transition hover:bg-gray-600"
-          >
-            <FiCamera className="h-5 w-5" />
-          </button>
-
-          {/* Поле выбора файла (скрытое) */}
-          <input
-            type="file"
-            accept="image/*"
-            ref={fileInputRef}
-            onChange={handleAvatarChange}
-            className="hidden"
+            className="rounded-full border-4 border-gray-300 shadow-lg"
           />
         </div>
-
-        {/* Кнопка удаления аватара */}
-        {user.image && (
-          <button
-            onClick={handleRemoveAvatar}
-            className="mt-3 flex items-center gap-2 rounded bg-red-500 px-3 py-1 text-white transition hover:bg-red-600"
-          >
-            <FiTrash2 className="h-5 w-5" /> Удалить аватар
-          </button>
-        )}
       </div>
 
       <div className="mt-6 text-center">
@@ -153,7 +112,7 @@ export default function UserProfile() {
                   <strong>Заказ #{order.id}</strong>
                 </p>
                 <p>
-                  <strong>Общая сумма:</strong> ${order.total.toFixed(2)}
+                  <strong>Общая сумма:</strong> ₽{order.total.toFixed(2)}
                 </p>
                 <ul className="mt-2">
                   {order.items.map((item, index) => (
@@ -162,24 +121,24 @@ export default function UserProfile() {
                     </li>
                   ))}
                 </ul>
+                <button
+                  onClick={() => handleDeleteOrder(order.id)}
+                  className="mt-2 flex items-center gap-2 rounded bg-red-500 px-3 py-1 text-white hover:bg-red-600"
+                >
+                  <FiTrash2 /> Удалить заказ
+                </button>
               </li>
             ))}
           </ul>
         )}
       </div>
 
-      <div className="mt-6 flex flex-col gap-3">
+      <div className="mt-6">
         <button
-          onClick={handleAddStore}
-          className="rounded bg-blue-500 px-4 py-2 text-white transition hover:bg-blue-600"
+          onClick={() => signOut({ callbackUrl: "/" })}
+          className="w-full rounded bg-gray-500 px-4 py-2 text-white transition hover:bg-gray-600"
         >
-          Добавить магазин
-        </button>
-        <button
-          onClick={handleLogout}
-          className="rounded bg-gray-500 px-4 py-2 text-white transition hover:bg-gray-600"
-        >
-          Выйти
+          Выйти из аккаунта
         </button>
       </div>
     </div>

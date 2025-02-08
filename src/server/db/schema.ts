@@ -58,6 +58,45 @@ export const carts = createTable(
   }),
 );
 
+export const orders = createTable(
+  "order",
+  {
+    id: integer("id").primaryKey().generatedByDefaultAsIdentity(),
+    userId: varchar("user_id", { length: 255 })
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    total: integer("total").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).$onUpdate(
+      () => new Date(),
+    ),
+  },
+  (order) => ({
+    userIdIdx: index("order_user_id_idx").on(order.userId),
+  }),
+);
+
+export const orderItems = createTable(
+  "order_item",
+  {
+    id: integer("id").primaryKey().generatedByDefaultAsIdentity(),
+    orderId: integer("order_id")
+      .notNull()
+      .references(() => orders.id, { onDelete: "cascade" }),
+    productId: integer("product_id")
+      .notNull()
+      .references(() => products.id, { onDelete: "cascade" }),
+    quantity: integer("quantity").notNull(),
+    price: integer("price").notNull(),
+  },
+  (orderItem) => ({
+    orderIdIdx: index("order_item_order_id_idx").on(orderItem.orderId),
+    productIdIdx: index("order_item_product_id_idx").on(orderItem.productId),
+  }),
+);
+
 export const posts = createTable(
   "post",
   {

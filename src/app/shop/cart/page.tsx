@@ -34,7 +34,7 @@ export default function CartPage() {
           <ul className="space-y-4">
             {cart.map((item) => (
               <li
-                key={item.id}
+                key={`${item.id}-${userId}`}
                 className="flex items-center justify-between rounded border p-4 shadow-sm"
               >
                 <img
