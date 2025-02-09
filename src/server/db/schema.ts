@@ -38,6 +38,26 @@ export const products = createTable(
   }),
 );
 
+export const shops = createTable(
+  "shop",
+  {
+    id: integer("id").primaryKey().generatedByDefaultAsIdentity(),
+    name: varchar("name", { length: 255 }).notNull(),
+    ownerId: varchar("owner_id", { length: 255 })
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).$onUpdate(
+      () => new Date(),
+    ),
+  },
+  (shop) => ({
+    ownerIdIndex: index("shop_owner_id_idx").on(shop.ownerId),
+  }),
+);
+
 export const carts = createTable(
   "cart",
   {

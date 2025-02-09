@@ -71,13 +71,6 @@ export default function ProductCard({ product }: { product: Product }) {
         >
           {added ? "Добавлено!" : "Добавить в корзину"}
         </button>
-
-        <Link
-          href={`/shop/product/${product.id}`}
-          className="mt-2 block rounded bg-blue-500 px-4 py-2 text-center text-white hover:bg-blue-600"
-        >
-          Подробнее
-        </Link>
       </div>
     </div>
   );

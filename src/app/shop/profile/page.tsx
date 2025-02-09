@@ -4,8 +4,18 @@ import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useState, useEffect } from "react";
-import { FiTrash2 } from "react-icons/fi";
 import Photo from "../../../../public/assets/wb.png";
+
+import CreateShopPopup from "~/components/CreateShopPopup";
+import UserOrders from "~/components/UserOrders";
+import AddProductPopup from "~/components/AddProductPoppup";
+
+type Shop = {
+  id: number;
+  name: string;
+  description: string;
+  ownerId: string;
+};
 
 type Order = {
   id: number;
@@ -25,21 +35,40 @@ type Product = {
 export default function UserProfile() {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const [shop, setShop] = useState<Shop | null>(null);
   const [orders, setOrders] = useState<Order[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [showAddProduct, setShowAddProduct] = useState(false);
-  const [productName, setProductName] = useState("");
-  const [productPrice, setProductPrice] = useState("");
-  const [productImage, setProductImage] = useState<File | null>(null);
+  const [showCreateShop, setShowCreateShop] = useState(false);
+  const [activeTab, setActiveTab] = useState<"shop" | "orders">("shop"); // Вкладки: "shop" | "orders"
 
   useEffect(() => {
     if (session?.user) {
-      fetchOrders();
-      fetchProducts();
+      fetchShop();
     }
   }, [session]);
 
-  // Получение заказов пользователя
+  useEffect(() => {
+    if (session?.user && shop) {
+      fetchOrders();
+      fetchProducts();
+    }
+  }, [session, shop]);
+
+  const fetchShop = async () => {
+    try {
+      const response = await fetch(
+        `/api/shop/get-shop?ownerId=${session?.user?.id}`,
+      );
+      if (response.ok) {
+        const data = await response.json();
+        setShop(data);
+      }
+    } catch (error) {
+      console.error("Ошибка загрузки магазина:", error);
+    }
+  };
+
   const fetchOrders = async () => {
     try {
       const response = await fetch(
@@ -54,25 +83,42 @@ export default function UserProfile() {
     }
   };
 
-  // Получение товаров пользователя
   const fetchProducts = async () => {
+    if (!session?.user) return;
+
     try {
       const response = await fetch(
-        `/api/shop/products?userId=${session?.user?.id}`,
+        `/api/shop/product-user?userId=${session.user.id}`,
       );
       if (response.ok) {
-        const data: Product[] = await response.json();
-        console.log("Загруженные товары:", data);
-        setProducts(
-          data.filter((product) => product.createdById === session?.user?.id),
-        );
+        const data = await response.json();
+        setProducts(data);
       }
     } catch (error) {
       console.error("Ошибка загрузки товаров:", error);
     }
   };
 
-  // Удаление заказа
+  const handleCreateShop = async (shopName: string) => {
+    try {
+      const response = await fetch("/api/shop/create-shop", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: shopName, ownerId: session?.user?.id }),
+      });
+
+      if (response.ok) {
+        fetchShop();
+        setShowCreateShop(false);
+      } else {
+        const errorData = await response.json();
+        alert(errorData.error);
+      }
+    } catch (error) {
+      console.error("Ошибка создания магазина:", error);
+    }
+  };
+
   const handleDeleteOrder = async (orderId: number) => {
     try {
       const response = await fetch("/api/shop/orders", {
@@ -83,111 +129,104 @@ export default function UserProfile() {
 
       if (response.ok) {
         setOrders(orders.filter((order) => order.id !== orderId));
-      } else {
-        alert("Ошибка при удалении заказа");
       }
     } catch (error) {
       console.error("Ошибка удаления заказа:", error);
     }
   };
 
-  // Добавление товара
-  const handleAddProduct = async () => {
-    if (!productName || !productPrice || !productImage) {
-      alert("Заполните все поля!");
+  const handleAddProduct = async (
+    name: string,
+    price: string,
+    image: File | null,
+  ) => {
+    if (!image || !shop) return;
+
+    // Проверяем, что session и user существуют
+    if (!session || !session.user || !session.user.id) {
+      console.error("Ошибка: пользователь не авторизован.");
       return;
     }
 
-    // Конвертируем файл в base64
     const reader = new FileReader();
-    reader.readAsDataURL(productImage);
+    reader.readAsDataURL(image);
     reader.onload = async () => {
-      const base64String = reader.result?.toString().split(",")[1]; // Убираем метаданные
-      const filename = `${Date.now()}-${productImage.name}`;
+      const base64String = reader.result?.toString().split(",")[1];
+      if (!base64String) return;
 
-      if (!base64String) {
-        alert("Ошибка конвертации изображения");
-        return;
-      }
-
-      // Загружаем изображение
       const uploadResponse = await fetch("/api/shop/upload-photo", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ image: base64String, filename }),
-      });
-
-      const uploadData = await uploadResponse.json();
-      if (!uploadData.filePath) {
-        alert("Ошибка загрузки изображения");
-        return;
-      }
-
-      const imageUrl = uploadData.filePath; // URL загруженного изображения
-
-      // Добавляем товар в базу данных
-      const response = await fetch("/api/shop/create-products", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name: productName,
-          price: productPrice,
-          imageUrl,
-          userId: session?.user?.id,
+          image: base64String,
+          filename: image.name, // Передаем имя файла
         }),
       });
 
-      if (response.ok) {
-        fetchProducts();
-        setShowAddProduct(false);
-        setProductName("");
-        setProductPrice("");
-        setProductImage(null);
-      } else {
-        alert("Ошибка при добавлении товара");
+      const uploadData = await uploadResponse.json();
+      if (!uploadData.filePath) return;
+
+      const productResponse = await fetch("/api/shop/create-products", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name,
+          price,
+          imageUrl: uploadData.filePath,
+          shopId: shop.id,
+          userId: session.user?.id,
+        }),
+      });
+
+      if (!productResponse.ok) {
+        const errorData = await productResponse.json();
+        console.error("Ошибка создания товара:", errorData);
+        return;
       }
+
+      fetchProducts();
     };
   };
 
-  // Удаление товара
   const handleDeleteProduct = async (productId: number) => {
+    if (!session?.user) return;
+
     try {
       const response = await fetch("/api/shop/create-products", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ productId, userId: session?.user?.id }),
+        body: JSON.stringify({ productId, userId: session.user.id }),
       });
 
       if (response.ok) {
         setProducts(products.filter((product) => product.id !== productId));
       } else {
-        alert("Ошибка при удалении товара");
+        const errorData = await response.json();
+        alert(errorData.error);
       }
     } catch (error) {
       console.error("Ошибка удаления товара:", error);
     }
   };
 
-  if (status === "loading") {
+  if (status === "loading")
     return <p className="text-center text-gray-600">Загрузка...</p>;
-  }
-
   if (!session || !session.user) {
-    router.push("/login");
+    router.push("/shop/login");
     return null;
   }
 
-  const user = session.user;
-
   return (
-    <div className="relative mx-auto max-w-md rounded-lg bg-white p-6 shadow-lg">
+    <div className="mx-auto max-w-md rounded-lg bg-white p-6 shadow-lg">
       <h1 className="mb-6 text-center text-2xl font-bold">
         Профиль пользователя
       </h1>
+
+      {/* Основная информация о пользователе */}
       <div className="relative flex flex-col items-center">
         <div className="relative h-32 w-32">
           <Image
-            src={Photo}
+            src={session.user.image || Photo}
             alt="Фото профиля"
             width={128}
             height={128}
@@ -197,126 +236,107 @@ export default function UserProfile() {
       </div>
       <div className="mt-6 text-center">
         <p className="text-lg">
-          <strong>Имя:</strong> {user.name ?? "Не указано"}
+          <strong>Имя:</strong> {session.user.name ?? "Не указано"}
         </p>
         <p className="text-lg">
-          <strong>Почта:</strong> {user.email ?? "Не указано"}
+          <strong>Почта:</strong> {session.user.email ?? "Не указано"}
         </p>
       </div>
-      {/* Список товаров пользователя */}
-      <div className="mt-6">
-        <h2 className="mb-4 text-xl font-bold">Мои товары</h2>
+
+      {/* Вкладки: Магазин / Заказы */}
+      <div className="mt-6 flex justify-center space-x-4">
         <button
-          onClick={() => setShowAddProduct(true)}
-          className="mb-4 rounded bg-green-500 px-4 py-2 text-white"
+          onClick={() => setActiveTab("shop")}
+          className={`rounded px-4 py-2 ${activeTab === "shop" ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-700"}`}
         >
-          + Добавить товар
+          Магазин
         </button>
-
-        {products.length === 0 ? (
-          <p className="text-gray-500">Вы еще не добавили товары.</p>
-        ) : (
-          <ul className="grid grid-cols-1 gap-4">
-            {products.map((product) => (
-              <li
-                key={product.id}
-                className="flex items-center justify-between rounded-lg border p-4 shadow-md"
-              >
-                <div className="flex items-center space-x-4">
-                  <img
-                    src={product.imageUrl}
-                    alt={product.name}
-                    className="h-16 w-16 rounded-lg object-cover"
-                  />
-                  <div>
-                    <p className="font-semibold">{product.name}</p>
-                    <p className="text-gray-700">₽{product.price}</p>
-                  </div>
-                </div>
-                <button
-                  onClick={() => handleDeleteProduct(product.id)}
-                  className="rounded bg-red-500 px-2 py-1 text-white hover:bg-red-600"
-                >
-                  <FiTrash2 />
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
+        <button
+          onClick={() => setActiveTab("orders")}
+          className={`rounded px-4 py-2 ${activeTab === "orders" ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-700"}`}
+        >
+          Заказы
+        </button>
       </div>
-      {/* Попап добавления товара */}
-      {showAddProduct && (
-        <div className="fixed inset-0 flex items-center justify-center bg-gray-700 bg-opacity-50">
-          <div className="rounded-lg bg-white p-6 shadow-lg">
-            <h2 className="mb-4 text-xl font-bold">Добавить товар</h2>
-            <input
-              type="text"
-              placeholder="Название"
-              value={productName}
-              onChange={(e) => setProductName(e.target.value)}
-              className="mb-2 w-full border p-2"
-            />
-            <input
-              type="number"
-              placeholder="Цена"
-              value={productPrice}
-              onChange={(e) => setProductPrice(e.target.value)}
-              className="mb-2 w-full border p-2"
-            />
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) => setProductImage(e.target.files?.[0] || null)}
-              className="mb-2 w-full border p-2"
-            />
-            <button
-              onClick={handleAddProduct}
-              className="w-full rounded bg-blue-500 px-4 py-2 text-white"
-            >
-              Добавить
-            </button>
-            <button
-              onClick={() => setShowAddProduct(false)}
-              className="mt-2 text-gray-500"
-            >
-              Отмена
-            </button>
-          </div>
-        </div>
-      )}
 
-      <div className="mt-6">
-        <h2 className="mb-4 text-xl font-bold">Мои заказы</h2>
-        {orders.length === 0 ? (
-          <p className="text-gray-500">У вас пока нет заказов.</p>
-        ) : (
-          <ul className="space-y-4">
-            {orders.map((order) => (
-              <li key={order.id} className="rounded-lg border p-4 shadow-md">
-                <p>
-                  <strong>Заказ #{order.id}</strong>
-                </p>
-                <p>
-                  <strong>Общая сумма:</strong> ₽{order.total.toFixed(2)}
-                </p>
-                <ul className="mt-2">
-                  {order.items.map((item, index) => (
-                    <li key={index} className="text-sm text-gray-600">
-                      {item.name} (x{item.quantity})
+      {/* Контент вкладок */}
+      {activeTab === "shop" && (
+        <div className="mt-6">
+          {shop ? (
+            <>
+              <h2 className="text-xl font-bold">Мой магазин: {shop.name}</h2>
+              <h2 className="text-xl font-bold">{shop.description}</h2>
+
+              <button
+                onClick={() => setShowAddProduct(true)}
+                className="mt-4 rounded bg-green-500 px-4 py-2 text-white"
+              >
+                + Добавить товар
+              </button>
+
+              {showAddProduct && (
+                <AddProductPopup
+                  onClose={() => setShowAddProduct(false)}
+                  onAddProduct={handleAddProduct}
+                />
+              )}
+
+              <h2 className="mt-6 text-xl font-bold">
+                Мои товары: {products.length}
+              </h2>
+              {products.length > 0 ? (
+                <ul>
+                  {products.map((product) => (
+                    <li
+                      key={product.id}
+                      className="flex justify-between border-b py-2"
+                    >
+                      <span>
+                        {product.name} - {product.price} ₽
+                      </span>
+                      <button
+                        onClick={() => handleDeleteProduct(product.id)}
+                        className="ml-4 rounded bg-red-500 px-2 py-1 text-white"
+                      >
+                        Удалить
+                      </button>
                     </li>
                   ))}
                 </ul>
-                <button
-                  onClick={() => handleDeleteOrder(order.id)}
-                  className="mt-2 flex items-center gap-2 rounded bg-red-500 px-3 py-1 text-white hover:bg-red-600"
-                >
-                  <FiTrash2 /> Удалить заказ
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
+              ) : (
+                <p className="text-gray-600">Товаров пока нет.</p>
+              )}
+            </>
+          ) : (
+            <button
+              onClick={() => setShowCreateShop(true)}
+              className="mt-6 rounded bg-blue-500 px-4 py-2 text-white"
+            >
+              Создать магазин
+            </button>
+          )}
+
+          {showCreateShop && (
+            <CreateShopPopup
+              onClose={() => setShowCreateShop(false)}
+              onCreateShop={handleCreateShop}
+            />
+          )}
+        </div>
+      )}
+
+      {activeTab === "orders" && (
+        <div className="mt-6">
+          <h2 className="text-xl font-bold">Мои заказы</h2>
+          {orders.length > 0 ? (
+            <UserOrders orders={orders} onDeleteOrder={handleDeleteOrder} />
+          ) : (
+            <p className="text-gray-600">Заказов пока нет.</p>
+          )}
+        </div>
+      )}
+
+      {/* Кнопка выхода */}
       <div className="mt-6">
         <button
           onClick={() => signOut({ callbackUrl: "/" })}
