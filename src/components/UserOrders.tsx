@@ -17,7 +17,6 @@ interface UserOrdersProps {
 export default function UserOrders({ orders, onDeleteOrder }: UserOrdersProps) {
   return (
     <div className="mt-6">
-      <h2 className="mb-4 text-xl font-bold">Мои заказы</h2>
       {orders.length === 0 ? (
         <p className="text-gray-500">У вас пока нет заказов.</p>
       ) : (

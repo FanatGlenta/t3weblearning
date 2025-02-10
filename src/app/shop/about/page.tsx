@@ -69,12 +69,12 @@ export default function AboutPage() {
         <h2 className="mb-4 text-2xl font-semibold">Мы в социальных сетях</h2>
         <ul className="list-disc pl-6 text-lg text-gray-700">
           <li>
-            <a href="https://t.me/" className="text-blue-500">
+            <a href="t.me/mezex_finance" className="text-blue-500">
               Telegram
             </a>
           </li>
           <li>
-            <a href="https://vk.com/" className="text-blue-500">
+            <a href="https://vk.com/mezex_finance" className="text-blue-500">
               ВКонтакте
             </a>
           </li>

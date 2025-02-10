@@ -342,7 +342,7 @@ export default function UserProfile() {
 
       {activeTab === "orders" && (
         <div className="mt-6">
-          <h2 className="text-xl font-bold">Мои заказы</h2>
+          <h2 className="text-xl font-bold">Мои заказы: {orders.length}</h2>
           {orders.length > 0 ? (
             <UserOrders orders={orders} onDeleteOrder={handleDeleteOrder} />
           ) : (

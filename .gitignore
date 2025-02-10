@@ -11,6 +11,8 @@
 # загрузка фоток в папку
 uploads
 
+docker-compose.yaml
+
 # database
 /prisma/db.sqlite
 /prisma/db.sqlite-journal
