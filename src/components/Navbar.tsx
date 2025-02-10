@@ -17,7 +17,7 @@ export default function Navbar({ links }: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <nav className="relative flex w-full items-center justify-between bg-blue-500 px-8 py-4 text-white shadow-lg">
+    <nav className="relative flex w-full items-center justify-between bg-blue-500 px-4 py-4 text-white shadow-lg">
       {/* Заголовок с ссылкой на главную страницу */}
       <Link
         href="/"

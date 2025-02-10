@@ -27,6 +27,7 @@ type Order = {
 type Product = {
   id: number;
   name: string;
+  description: string;
   price: number;
   imageUrl: string;
   createdById: string;
@@ -40,7 +41,7 @@ export default function UserProfile() {
   const [products, setProducts] = useState<Product[]>([]);
   const [showAddProduct, setShowAddProduct] = useState(false);
   const [showCreateShop, setShowCreateShop] = useState(false);
-  const [activeTab, setActiveTab] = useState<"shop" | "orders">("shop"); // Вкладки: "shop" | "orders"
+  const [activeTab, setActiveTab] = useState<"shop" | "orders">("shop");
 
   useEffect(() => {
     if (session?.user) {
@@ -99,12 +100,19 @@ export default function UserProfile() {
     }
   };
 
-  const handleCreateShop = async (shopName: string) => {
+  const handleCreateShop = async (
+    shopName: string,
+    shopDescription: string,
+  ) => {
     try {
       const response = await fetch("/api/shop/create-shop", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: shopName, ownerId: session?.user?.id }),
+        body: JSON.stringify({
+          name: shopName,
+          description: shopDescription,
+          ownerId: session?.user?.id,
+        }),
       });
 
       if (response.ok) {
@@ -137,6 +145,7 @@ export default function UserProfile() {
 
   const handleAddProduct = async (
     name: string,
+    description: string,
     price: string,
     image: File | null,
   ) => {
@@ -171,6 +180,7 @@ export default function UserProfile() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name,
+          description,
           price,
           imageUrl: uploadData.filePath,
           shopId: shop.id,
@@ -243,7 +253,7 @@ export default function UserProfile() {
         </p>
       </div>
 
-      {/* Вкладки: Магазин / Заказы */}
+      {/* Вкладки */}
       <div className="mt-6 flex justify-center space-x-4">
         <button
           onClick={() => setActiveTab("shop")}
@@ -265,7 +275,7 @@ export default function UserProfile() {
           {shop ? (
             <>
               <h2 className="text-xl font-bold">Мой магазин: {shop.name}</h2>
-              <h2 className="text-xl font-bold">{shop.description}</h2>
+              <p className="text-gray-600">{shop.description}</p>
 
               <button
                 onClick={() => setShowAddProduct(true)}
@@ -273,7 +283,6 @@ export default function UserProfile() {
               >
                 + Добавить товар
               </button>
-
               {showAddProduct && (
                 <AddProductPopup
                   onClose={() => setShowAddProduct(false)}
@@ -285,24 +294,30 @@ export default function UserProfile() {
                 Мои товары: {products.length}
               </h2>
               {products.length > 0 ? (
-                <ul>
+                <div className="mt-4 grid grid-cols-2 gap-4">
                   {products.map((product) => (
-                    <li
+                    <div
                       key={product.id}
-                      className="flex justify-between border-b py-2"
+                      className="rounded-lg border p-4 shadow-sm"
                     >
-                      <span>
-                        {product.name} - {product.price} ₽
-                      </span>
+                      <h3 className="mt-2 text-lg font-semibold">
+                        {product.name}
+                      </h3>
+                      <p className="truncate text-gray-600">
+                        {product.description}
+                      </p>
+                      <p className="mt-1 text-sm font-bold">
+                        {product.price} ₽
+                      </p>
                       <button
                         onClick={() => handleDeleteProduct(product.id)}
-                        className="ml-4 rounded bg-red-500 px-2 py-1 text-white"
+                        className="mt-2 w-full rounded bg-red-500 px-2 py-1 text-white"
                       >
                         Удалить
                       </button>
-                    </li>
+                    </div>
                   ))}
-                </ul>
+                </div>
               ) : (
                 <p className="text-gray-600">Товаров пока нет.</p>
               )}

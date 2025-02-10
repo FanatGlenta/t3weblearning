@@ -6,9 +6,9 @@ import { eq } from "drizzle-orm";
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { name, ownerId } = body;
+    const { name, description, ownerId } = body;
 
-    if (!name || !ownerId) {
+    if (!name || !description || !ownerId) {
       return NextResponse.json(
         { error: "Имя магазина и ownerId обязательны" },
         { status: 400 },
@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
     // Создаем новый магазин
     const newShop = await db
       .insert(shops)
-      .values({ name, ownerId })
+      .values({ name, description, ownerId })
       .returning();
 
     return NextResponse.json(newShop[0], { status: 201 });

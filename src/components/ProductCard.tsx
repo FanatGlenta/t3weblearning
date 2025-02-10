@@ -1,13 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { useCartStore } from "~/store/useCartStore";
 import { useSession } from "next-auth/react";
 
 interface Product {
   id: number;
   name: string;
+  description: string;
   price: number;
   imageUrl: string;
 }
@@ -42,12 +42,13 @@ export default function ProductCard({ product }: { product: Product }) {
           className="h-40 w-full rounded object-cover"
         />
         <h3 className="mt-2 text-xl font-semibold">{product.name}</h3>
+        <p className="text-gray-600">{product.description}</p>
         <p className="text-gray-600">Цена: {product.price}₽</p>
       </div>
 
       {/* Нижний блок с кнопками */}
       <div className="mt-4">
-        <div className="flex items-center justify-center gap-2">
+        <div className="flex items-center justify-center gap-10">
           <button
             onClick={() => setQuantity((q) => Math.max(1, q - 1))}
             className="rounded bg-gray-200 px-3 py-1 text-xl"

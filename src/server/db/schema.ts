@@ -43,6 +43,7 @@ export const shops = createTable(
   {
     id: integer("id").primaryKey().generatedByDefaultAsIdentity(),
     name: varchar("name", { length: 255 }).notNull(),
+    description: text("description"),
     ownerId: varchar("owner_id", { length: 255 })
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),

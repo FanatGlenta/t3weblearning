@@ -6,12 +6,13 @@ import { eq, and } from "drizzle-orm";
 // POST method
 export async function POST(req: NextRequest) {
   try {
-    const { name, price, imageUrl, userId } = await req.json();
+    const { name, description, price, imageUrl, userId } = await req.json();
 
     const newProduct = await db
       .insert(products)
       .values({
         name,
+        description,
         price: parseInt(price, 10),
         imageUrl,
         createdById: userId,

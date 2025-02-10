@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Navbar from "~/components/Navbar";
-import NumberPad from "~/components/ButtonCalculator"; // Импортируем компонент кнопок
+import NumberPad from "~/components/ButtonCalculator";
 
 export default function Calculator() {
   const [input, setInput] = useState("");

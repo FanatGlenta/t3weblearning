@@ -4,7 +4,6 @@ import { db } from "~/server/db";
 import { eq, and } from "drizzle-orm";
 import { carts, products } from "~/server/db/schema";
 
-// GET /api/shop/cart?userId=...
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const userId = searchParams.get("userId");
@@ -35,7 +34,6 @@ export async function GET(req: NextRequest) {
   }
 }
 
-// POST /api/shop/cart
 export async function POST(req: NextRequest) {
   const { userId, productId, quantity } = await req.json();
 
