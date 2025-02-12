@@ -27,22 +27,25 @@ export default function ProductCard({ product }: { product: Product }) {
 
     addToCart(userId, { ...product, quantity });
 
-    // Анимация на кнопке
+    // Анимация кнопки "Добавлено!"
     setAdded(true);
     setTimeout(() => setAdded(false), 1500);
   };
 
   return (
-    <div className="flex flex-col justify-between rounded-lg bg-white p-4 shadow-lg transition-transform hover:scale-105">
+    <div className="flex h-[400px] flex-col justify-between rounded-lg bg-white p-4 shadow-lg transition-transform hover:scale-105">
       {/* Верхний блок с изображением и информацией */}
       <div>
         <img
           src={product.imageUrl}
           alt={product.name}
-          className="h-40 w-full rounded object-cover"
+          className="h-40 w-full rounded object-cover outline outline-offset-2 outline-blue-500"
         />
+
         <h3 className="mt-2 text-xl font-semibold">{product.name}</h3>
-        <p className="text-gray-600">{product.description}</p>
+        <p className="line-clamp-2 overflow-hidden text-ellipsis text-gray-600">
+          {product.description}
+        </p>
         <p className="text-gray-600">Цена: {product.price}₽</p>
       </div>
 

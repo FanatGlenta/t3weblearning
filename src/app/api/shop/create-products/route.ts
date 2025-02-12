@@ -54,3 +54,54 @@ export async function DELETE(req: NextRequest) {
     return NextResponse.json({ error: "Ошибка сервера" }, { status: 500 });
   }
 }
+
+export async function PUT(req: NextRequest) {
+  try {
+    const { productId, userId, name, description, price, imageUrl } =
+      await req.json();
+
+    console.log("Попытка обновить товар:", {
+      productId,
+      userId,
+      name,
+      description,
+      price,
+      imageUrl,
+    });
+
+    // Проверяем, что все необходимые данные переданы
+    if (!productId || !userId || !name || !description || !price) {
+      return NextResponse.json(
+        { error: "Все поля обязательны" },
+        { status: 400 },
+      );
+    }
+
+    // Обновляем товар только если он принадлежит пользователю
+    const updatedProduct = await db
+      .update(products)
+      .set({
+        name,
+        description,
+        price: parseInt(price, 10),
+        imageUrl,
+      })
+      .where(and(eq(products.id, productId), eq(products.createdById, userId)))
+      .returning({ id: products.id });
+
+    if (!updatedProduct.length) {
+      return NextResponse.json(
+        { error: "Нет прав на обновление или товар не найден" },
+        { status: 403 },
+      );
+    }
+
+    return NextResponse.json(
+      { message: "Товар обновлён", updatedProduct },
+      { status: 200 },
+    );
+  } catch (error) {
+    console.error("Ошибка обновления товара:", error);
+    return NextResponse.json({ error: "Ошибка сервера" }, { status: 500 });
+  }
+}

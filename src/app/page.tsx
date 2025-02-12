@@ -10,7 +10,7 @@ const homeLinks = [
 export default function HomePage() {
   return (
     <main className="flex h-screen flex-col bg-gray-100 text-gray-900">
-      <Navbar links={homeLinks} />
+      <Navbar brand={{ title: "FanatGlenta", link: "/" }} links={homeLinks} />
 
       <div className="flex flex-1 items-center justify-center px-6">
         <div className="text-center">

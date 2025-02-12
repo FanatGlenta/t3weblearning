@@ -4,26 +4,30 @@ import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useState, useEffect } from "react";
-import Photo from "../../../../public/assets/wb.png";
 
+import Photo from "../../../assets/ava_profile.jpg";
 import CreateShopPopup from "~/components/CreateShopPopup";
 import UserOrders from "~/components/UserOrders";
 import AddProductPopup from "~/components/AddProductPoppup";
 
-type Shop = {
-  id: number;
-  name: string;
-  description: string;
-  ownerId: string;
-};
+import { fetchShop, createShop } from "~/services/shopService";
+import { fetchOrders, deleteOrder } from "~/services/orderService";
+import {
+  fetchProducts,
+  addProduct,
+  deleteProduct,
+  updateProduct,
+} from "~/services/productService";
+import Loader from "~/components/Loader";
+import EditProductPopup from "~/components/EditProductPopup";
 
+type Shop = { id: number; name: string; description: string; ownerId: string };
 type Order = {
   id: number;
   total: number;
   createdAt: string;
   items: { name: string; quantity: number }[];
 };
-
 type Product = {
   id: number;
   name: string;
@@ -42,104 +46,32 @@ export default function UserProfile() {
   const [showAddProduct, setShowAddProduct] = useState(false);
   const [showCreateShop, setShowCreateShop] = useState(false);
   const [activeTab, setActiveTab] = useState<"shop" | "orders">("shop");
+  const [editProduct, setEditProduct] = useState<Product | null>(null);
 
   useEffect(() => {
-    if (session?.user) {
-      fetchShop();
+    if (session?.user?.id) {
+      fetchShop(session.user.id).then(setShop);
     }
   }, [session]);
 
   useEffect(() => {
-    if (session?.user && shop) {
-      fetchOrders();
-      fetchProducts();
+    if (session?.user?.id && shop) {
+      fetchOrders(session.user.id).then(setOrders);
+      fetchProducts(session.user.id).then(setProducts);
     }
   }, [session, shop]);
-
-  const fetchShop = async () => {
-    try {
-      const response = await fetch(
-        `/api/shop/get-shop?ownerId=${session?.user?.id}`,
-      );
-      if (response.ok) {
-        const data = await response.json();
-        setShop(data);
-      }
-    } catch (error) {
-      console.error("Ошибка загрузки магазина:", error);
-    }
-  };
-
-  const fetchOrders = async () => {
-    try {
-      const response = await fetch(
-        `/api/shop/orders?userId=${session?.user?.id}`,
-      );
-      if (response.ok) {
-        const data = await response.json();
-        setOrders(data);
-      }
-    } catch (error) {
-      console.error("Ошибка загрузки заказов:", error);
-    }
-  };
-
-  const fetchProducts = async () => {
-    if (!session?.user) return;
-
-    try {
-      const response = await fetch(
-        `/api/shop/product-user?userId=${session.user.id}`,
-      );
-      if (response.ok) {
-        const data = await response.json();
-        setProducts(data);
-      }
-    } catch (error) {
-      console.error("Ошибка загрузки товаров:", error);
-    }
-  };
 
   const handleCreateShop = async (
     shopName: string,
     shopDescription: string,
   ) => {
+    if (!session?.user?.id) return;
     try {
-      const response = await fetch("/api/shop/create-shop", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: shopName,
-          description: shopDescription,
-          ownerId: session?.user?.id,
-        }),
-      });
-
-      if (response.ok) {
-        fetchShop();
-        setShowCreateShop(false);
-      } else {
-        const errorData = await response.json();
-        alert(errorData.error);
-      }
+      await createShop(shopName, shopDescription, session.user.id);
+      fetchShop(session.user.id).then(setShop);
+      setShowCreateShop(false);
     } catch (error) {
-      console.error("Ошибка создания магазина:", error);
-    }
-  };
-
-  const handleDeleteOrder = async (orderId: number) => {
-    try {
-      const response = await fetch("/api/shop/orders", {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ orderId }),
-      });
-
-      if (response.ok) {
-        setOrders(orders.filter((order) => order.id !== orderId));
-      }
-    } catch (error) {
-      console.error("Ошибка удаления заказа:", error);
+      alert(error);
     }
   };
 
@@ -149,80 +81,56 @@ export default function UserProfile() {
     price: string,
     image: File | null,
   ) => {
-    if (!image || !shop) return;
-
-    // Проверяем, что session и user существуют
-    if (!session || !session.user || !session.user.id) {
-      console.error("Ошибка: пользователь не авторизован.");
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.readAsDataURL(image);
-    reader.onload = async () => {
-      const base64String = reader.result?.toString().split(",")[1];
-      if (!base64String) return;
-
-      const uploadResponse = await fetch("/api/shop/upload-photo", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          image: base64String,
-          filename: image.name, // Передаем имя файла
-        }),
-      });
-
-      const uploadData = await uploadResponse.json();
-      if (!uploadData.filePath) return;
-
-      const productResponse = await fetch("/api/shop/create-products", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name,
-          description,
-          price,
-          imageUrl: uploadData.filePath,
-          shopId: shop.id,
-          userId: session.user?.id,
-        }),
-      });
-
-      if (!productResponse.ok) {
-        const errorData = await productResponse.json();
-        console.error("Ошибка создания товара:", errorData);
-        return;
-      }
-
-      fetchProducts();
-    };
+    if (!image || !shop || !session?.user?.id) return;
+    await addProduct(name, description, price, image, shop.id, session.user.id);
+    fetchProducts(session.user.id).then(setProducts);
   };
 
   const handleDeleteProduct = async (productId: number) => {
-    if (!session?.user) return;
-
-    try {
-      const response = await fetch("/api/shop/create-products", {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ productId, userId: session.user.id }),
-      });
-
-      if (response.ok) {
-        setProducts(products.filter((product) => product.id !== productId));
-      } else {
-        const errorData = await response.json();
-        alert(errorData.error);
-      }
-    } catch (error) {
-      console.error("Ошибка удаления товара:", error);
+    if (!session?.user?.id) return;
+    if (await deleteProduct(productId, session.user.id)) {
+      setProducts(products.filter((product) => product.id !== productId));
     }
   };
 
-  if (status === "loading")
-    return <p className="text-center text-gray-600">Загрузка...</p>;
+  const handleDeleteOrder = async (orderId: number) => {
+    if (await deleteOrder(orderId)) {
+      setOrders(orders.filter((order) => order.id !== orderId));
+    }
+  };
+
+  const handleEditProductClick = (product: Product) => {
+    setEditProduct(product);
+  };
+
+  const handleUpdateProduct = async (
+    id: number,
+    name: string,
+    description: string,
+    price: string,
+  ) => {
+    if (!session?.user?.id) return;
+    try {
+      await updateProduct(id, session.user.id, name, description, price);
+
+      setProducts((prevProducts) =>
+        prevProducts.map((product) =>
+          product.id === id
+            ? { ...product, name, description, price: Number(price) }
+            : product,
+        ),
+      );
+
+      setEditProduct(null);
+    } catch (error) {
+      alert("Ошибка при обновлении товара");
+    }
+  };
+
+  if (status === "loading") return <Loader />;
+
   if (!session || !session.user) {
-    router.push("/shop/login");
+    router.push("/shop");
     return null;
   }
 
@@ -232,7 +140,6 @@ export default function UserProfile() {
         Профиль пользователя
       </h1>
 
-      {/* Основная информация о пользователе */}
       <div className="relative flex flex-col items-center">
         <div className="relative h-32 w-32">
           <Image
@@ -253,7 +160,6 @@ export default function UserProfile() {
         </p>
       </div>
 
-      {/* Вкладки */}
       <div className="mt-6 flex justify-center space-x-4">
         <button
           onClick={() => setActiveTab("shop")}
@@ -269,7 +175,6 @@ export default function UserProfile() {
         </button>
       </div>
 
-      {/* Контент вкладок */}
       {activeTab === "shop" && (
         <div className="mt-6">
           {shop ? (
@@ -290,25 +195,41 @@ export default function UserProfile() {
                 />
               )}
 
-              <h2 className="mt-6 text-xl font-bold">
-                Мои товары: {products.length}
-              </h2>
+              <h2 className="mt-6 text-xl font-bold">Мои товары</h2>
               {products.length > 0 ? (
                 <div className="mt-4 grid grid-cols-2 gap-4">
                   {products.map((product) => (
                     <div
                       key={product.id}
-                      className="rounded-lg border p-4 shadow-sm"
+                      className="flex flex-col justify-between rounded-lg border p-4 pt-3 shadow-sm"
                     >
-                      <h3 className="mt-2 text-lg font-semibold">
-                        {product.name}
-                      </h3>
-                      <p className="truncate text-gray-600">
-                        {product.description}
-                      </p>
-                      <p className="mt-1 text-sm font-bold">
-                        {product.price} ₽
-                      </p>
+                      <div>
+                        <div className="relative">
+                          <h3 className="text-lg font-semibold">
+                            {product.name}
+                          </h3>
+                          <button
+                            className="absolute right-0 top-0 p-1 text-gray-500 hover:text-gray-700"
+                            onClick={() => handleEditProductClick(product)}
+                          >
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              className="h-5 w-5"
+                              viewBox="0 0 20 20"
+                              fill="currentColor"
+                            >
+                              <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V14h3.828l7.586-7.586a2 2 0 000-2.828l-1-1zM4 13v3h3l10-10-3-3L4 13z" />
+                            </svg>
+                          </button>
+                        </div>
+
+                        <p className="truncate text-gray-600">
+                          {product.description}
+                        </p>
+                        <p className="mt-1 text-sm font-bold">
+                          {product.price} ₽
+                        </p>
+                      </div>
                       <button
                         onClick={() => handleDeleteProduct(product.id)}
                         className="mt-2 w-full rounded bg-red-500 px-2 py-1 text-white"
@@ -331,6 +252,14 @@ export default function UserProfile() {
             </button>
           )}
 
+          {editProduct && (
+            <EditProductPopup
+              product={editProduct}
+              onClose={() => setEditProduct(null)}
+              onUpdateProduct={handleUpdateProduct}
+            />
+          )}
+
           {showCreateShop && (
             <CreateShopPopup
               onClose={() => setShowCreateShop(false)}
@@ -351,10 +280,9 @@ export default function UserProfile() {
         </div>
       )}
 
-      {/* Кнопка выхода */}
       <div className="mt-6">
         <button
-          onClick={() => signOut({ callbackUrl: "/" })}
+          onClick={() => signOut({ callbackUrl: "/shop" })}
           className="w-full rounded bg-gray-500 px-4 py-2 text-white transition hover:bg-gray-600"
         >
           Выйти из аккаунта

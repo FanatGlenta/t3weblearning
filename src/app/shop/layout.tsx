@@ -48,8 +48,14 @@ export default function ShopLayout({
 
   return (
     <>
-      <Navbar key={session?.user?.id || "guest"} links={shopLinks} />
-      <div className="bg-gray-100">{children}</div>
+      <Navbar
+        key={session?.user?.id || "guest"}
+        brand={{ title: "Valorant Store", link: "/" }}
+        links={shopLinks}
+      />
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 px-6 py-10">
+        {children}
+      </div>
     </>
   );
 }

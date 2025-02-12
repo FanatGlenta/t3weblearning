@@ -20,11 +20,14 @@ export default function CreateShopPopup({
       return;
     }
     onCreateShop(shopName, shopDescription);
+    onClose(); // Закрываем попап после создания магазина
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-gray-700 bg-opacity-50 p-4">
-      <div className="relative rounded-lg bg-white p-6 shadow-lg">
+    <div className="fixed inset-0 z-40 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm">
+      {/* Попап */}
+      <div className="relative z-50 w-full max-w-md rounded-lg bg-white p-6 shadow-lg">
+        {/* Кнопка закрытия */}
         <button
           onClick={onClose}
           className="absolute right-4 top-4 text-gray-500 hover:text-gray-700"
@@ -44,29 +47,41 @@ export default function CreateShopPopup({
             />
           </svg>
         </button>
-        <h2 className="mb-4 text-xl font-bold">Создать магазин</h2>
+
+        {/* Заголовок */}
+        <h2 className="mb-4 text-center text-xl font-bold">Создать магазин</h2>
+
+        {/* Поля ввода */}
         <input
           type="text"
           placeholder="Название магазина"
           value={shopName}
           onChange={(e) => setShopName(e.target.value)}
-          className="mb-2 w-full border p-2"
+          className="mb-2 w-full rounded-md border p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
 
-        <input
-          type="text"
+        <textarea
           placeholder="Описание магазина"
           value={shopDescription}
           onChange={(e) => setShopDescription(e.target.value)}
-          className="mb-2 w-full border p-2"
+          className="mb-2 w-full rounded-md border p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
 
-        <button
-          onClick={handleSubmit}
-          className="w-full rounded bg-blue-500 px-4 py-2 text-white"
-        >
-          Создать
-        </button>
+        {/* Кнопки */}
+        <div className="mt-4 flex justify-between">
+          <button
+            onClick={handleSubmit}
+            className="mr-2 w-1/2 rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
+          >
+            Создать
+          </button>
+          <button
+            onClick={onClose}
+            className="ml-2 w-1/2 rounded bg-gray-400 px-4 py-2 text-white hover:bg-gray-500"
+          >
+            Отмена
+          </button>
+        </div>
       </div>
     </div>
   );

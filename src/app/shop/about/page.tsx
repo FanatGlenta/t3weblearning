@@ -1,73 +1,169 @@
 "use client";
 
+import { motion } from "framer-motion";
+
 export default function AboutPage() {
   return (
-    <div className="flex items-center justify-center bg-gray-100 p-6">
-      <div className="mx-auto max-w-4xl rounded-lg bg-white p-8 shadow-md">
-        <h1 className="mb-4 text-3xl font-bold">О компании</h1>
-        <p className="mb-4 text-lg text-gray-700">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.8 }}
+      className="flex items-center justify-center"
+    >
+      <motion.div
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+        className="mx-auto max-w-4xl rounded-lg bg-white p-8 shadow-md"
+      >
+        {/* Заголовок */}
+        <motion.h1
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="mb-4 text-3xl font-bold"
+        >
+          О компании
+        </motion.h1>
+
+        {/* Описание компании */}
+        <motion.p
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.6, delay: 0.3 }}
+          className="mb-4 text-lg text-gray-700"
+        >
           Добро пожаловать в наш интернет-магазин! Мы занимаемся продажей
           качественных товаров и предоставляем высокий уровень сервиса.
-        </p>
-        <p className="mb-4 text-lg text-gray-700">
-          Наша компания была основана в 2020 году, и с тех пор мы активно
-          развиваемся, расширяя ассортимент и улучшая качество обслуживания.
-        </p>
-        <p className="mb-6 text-lg text-gray-700">
-          Мы ценим наших клиентов и стремимся обеспечить комфортные условия
-          покупок. Если у вас есть вопросы, свяжитесь с нашей службой поддержки.
-        </p>
+        </motion.p>
 
-        {/* Раздел о доставке */}
-        <h2 className="mb-4 text-2xl font-semibold">Доставка</h2>
-        <p className="mb-4 text-lg text-gray-700">
-          Мы осуществляем доставку по всей России и странам СНГ. Доступны
-          следующие варианты доставки:
-        </p>
-        <ul className="mb-4 list-disc pl-6 text-lg text-gray-700">
-          <li>
-            <strong>Курьерская доставка</strong> – от 1 до 3 дней в крупных
-            городах.
-          </li>
-          <li>
-            <strong>Доставка почтой</strong> – от 3 до 10 дней в зависимости от
-            региона.
-          </li>
-          <li>
-            <strong>Пункты самовывоза</strong> – доступно в более чем 100
-            городах.
-          </li>
-        </ul>
-        <p className="mb-6 text-lg text-gray-700">
-          Стоимость доставки зависит от региона и рассчитывается при оформлении
-          заказа.
-        </p>
+        {/* Миссия и ценности */}
+        <motion.h2
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+          className="mb-4 text-2xl font-semibold"
+        >
+          Наша миссия
+        </motion.h2>
+        <motion.p
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.6, delay: 0.5 }}
+          className="mb-4 text-lg text-gray-700"
+        >
+          Мы стремимся делать покупки удобными и доступными каждому клиенту.
+          Наша цель — предложить товары высокого качества по доступным ценам и
+          создать лучший клиентский сервис.
+        </motion.p>
 
-        {/* Контактные данные */}
-        <h2 className="mb-4 text-2xl font-semibold">Контакты</h2>
-        <p className="mb-2 text-lg text-gray-700">
+        {/* Преимущества */}
+        <motion.h2
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.6, delay: 0.6 }}
+          className="mb-4 text-2xl font-semibold"
+        >
+          Наши преимущества
+        </motion.h2>
+        <motion.ul
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.6, delay: 0.7 }}
+          className="mb-4 list-disc pl-6 text-lg text-gray-700"
+        >
+          <li>Широкий ассортимент товаров.</li>
+          <li>Быстрая и надежная доставка.</li>
+          <li>Гарантия качества на все товары.</li>
+          <li>Профессиональная поддержка клиентов 24/7.</li>
+          <li>Безопасная оплата.</li>
+        </motion.ul>
+
+        {/* Гарантии */}
+        <motion.h2
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.6, delay: 0.8 }}
+          className="mb-4 text-2xl font-semibold"
+        >
+          Гарантия и возврат
+        </motion.h2>
+        <motion.p
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.6, delay: 0.9 }}
+          className="mb-4 text-lg text-gray-700"
+        >
+          Мы гарантируем качество каждого товара. Если продукт оказался
+          бракованным или не соответствует описанию, вы можете вернуть его в
+          течение 14 дней после покупки.
+        </motion.p>
+
+        {/* Оплата */}
+        <motion.h2
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.6, delay: 1.0 }}
+          className="mb-4 text-2xl font-semibold"
+        >
+          Оплата
+        </motion.h2>
+        <motion.p
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.6, delay: 1.1 }}
+          className="mb-4 text-lg text-gray-700"
+        >
+          Мы принимаем следующие способы оплаты:
+        </motion.p>
+        <motion.ul
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.6, delay: 1.2 }}
+          className="mb-4 list-disc pl-6 text-lg text-gray-700"
+        >
+          <li>Банковские карты (Visa, MasterCard, Мир).</li>
+          <li>Электронные кошельки (ЮMoney, QIWI, WebMoney).</li>
+          <li>Переводы через СБП.</li>
+          <li>Наличный расчет при получении.</li>
+        </motion.ul>
+
+        {/* Контакты */}
+        <motion.h2
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.6, delay: 1.3 }}
+          className="mb-4 text-2xl font-semibold"
+        >
+          Контакты
+        </motion.h2>
+        <motion.p
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.6, delay: 1.4 }}
+          className="mb-2 text-lg text-gray-700"
+        >
           <strong>Телефон:</strong>{" "}
           <a href="tel:+78001234567" className="text-blue-500">
             +7 (800) 123-45-67
           </a>
-        </p>
-        <p className="mb-2 text-lg text-gray-700">
-          <strong>Email:</strong>{" "}
-          <a href="mailto:info@yourshop.ru" className="text-blue-500">
-            info@yourshop.ru
-          </a>
-        </p>
-        <p className="mb-2 text-lg text-gray-700">
-          <strong>Адрес:</strong> г. Москва, ул. Примерная, д. 10, офис 5
-        </p>
-        <p className="mb-6 text-lg text-gray-700">
-          <strong>График работы:</strong> Пн-Пт с 9:00 до 20:00, Сб-Вс с 10:00
-          до 18:00
-        </p>
+        </motion.p>
 
         {/* Социальные сети */}
-        <h2 className="mb-4 text-2xl font-semibold">Мы в социальных сетях</h2>
-        <ul className="list-disc pl-6 text-lg text-gray-700">
+        <motion.h2
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.6, delay: 1.5 }}
+          className="mb-4 text-2xl font-semibold"
+        >
+          Мы в социальных сетях
+        </motion.h2>
+        <motion.ul
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.6, delay: 1.6 }}
+          className="list-disc pl-6 text-lg text-gray-700"
+        >
           <li>
             <a href="t.me/mezex_finance" className="text-blue-500">
               Telegram
@@ -83,8 +179,8 @@ export default function AboutPage() {
               Instagram
             </a>
           </li>
-        </ul>
-      </div>
-    </div>
+        </motion.ul>
+      </motion.div>
+    </motion.div>
   );
 }

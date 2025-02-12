@@ -10,20 +10,21 @@ interface NavLink {
 }
 
 interface NavbarProps {
+  brand: { title: string; link: string }; // Новый пропс для бренда
   links: readonly NavLink[];
 }
 
-export default function Navbar({ links }: NavbarProps) {
+export default function Navbar({ brand, links }: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
     <nav className="relative flex w-full items-center justify-between bg-blue-500 px-4 py-4 text-white shadow-lg">
-      {/* Заголовок с ссылкой на главную страницу */}
+      {/* Динамический заголовок с ссылкой */}
       <Link
-        href="/"
+        href={brand.link}
         className="text-xl font-bold transition duration-300 hover:text-gray-200"
       >
-        FanatGlenta
+        {brand.title}
       </Link>
 
       {/* Десктопное меню */}
@@ -89,14 +90,14 @@ export default function Navbar({ links }: NavbarProps) {
         )}
       </button>
 
-      {/* Мобильное меню с анимацией */}
+      {/* Мобильное меню */}
       <div
         className={`fixed inset-0 z-40 flex flex-col items-center justify-center bg-blue-600 p-5 transition-transform duration-300 ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         } md:hidden`}
         aria-hidden={!isOpen}
       >
-        {/* Кнопка закрытия меню (иконка) */}
+        {/* Кнопка закрытия меню */}
         <button
           onClick={() => setIsOpen(false)}
           aria-label="Close Menu"

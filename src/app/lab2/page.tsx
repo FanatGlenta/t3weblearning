@@ -37,7 +37,7 @@ export default function Calculator() {
 
   return (
     <main className="flex min-h-screen flex-col items-center bg-gray-100 text-gray-900">
-      <Navbar links={homeLinks} />
+      <Navbar brand={{ title: "Calculator", link: "/" }} links={homeLinks} />
       <h1 className="mt-6 text-center text-3xl font-bold">
         Калькулятор систем счисления
       </h1>
