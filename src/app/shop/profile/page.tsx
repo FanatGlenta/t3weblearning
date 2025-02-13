@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useState, useEffect } from "react";
 
-import Photo from "../../../assets/ava_profile.jpg";
+import Photo from "../../../assets/wb.png";
 import CreateShopPopup from "~/components/CreateShopPopup";
 import UserOrders from "~/components/UserOrders";
 import AddProductPopup from "~/components/AddProductPoppup";
