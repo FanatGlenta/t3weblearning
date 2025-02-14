@@ -1,7 +1,6 @@
 import "~/styles/globals.css";
 
 import { type Metadata } from "next";
-import NavBarIKNT from "~/components/iknt/NavBarIKNT";
 
 export const metadata: Metadata = {
   title: "Create T3 App",
@@ -9,22 +8,12 @@ export const metadata: Metadata = {
   icons: [{ rel: "icon", url: "/favicon.ico" }],
 };
 
-const homeLinks = [
-  { title: "О нас", link: "/shop" },
-  { title: "Новости", link: "#news" },
-  { title: "Поступление", link: "/iknt" },
-] as const;
-
 export default function IKNTLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <>
-      <NavBarIKNT
-        links={homeLinks}
-        brand={{ title: "FanatGlenta", link: "/" }}
-      />
-      <div className="bg-gray-100">{children}</div>
+      <div className="bg-[#191919]">{children}</div>
     </>
   );
 }

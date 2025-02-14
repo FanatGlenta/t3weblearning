@@ -3,26 +3,35 @@
 import Image from "next/image";
 import Photo from "~/assets/mainBlock.png";
 import Arrow from "~/assets/arrow.png";
+import NavBarIKNT from "~/components/iknt/NavBarIKNT";
 import { useNavHeight } from "../hooks/useNavHeight";
 
 export default function IKNTMainBlock() {
-  const navHeight = useNavHeight();
+  const homeLinks = [
+    { title: "О нас", link: "#aboutUs" },
+    { title: "Новости", link: "#news" },
+    { title: "Преподаватели", link: "#teachers" },
+  ] as const;
   return (
     <section
-      className="relative z-10 flex flex-col items-center justify-center px-4 py-10 pt-0 text-center sm:px-10 sm:py-20"
-      style={{ height: `calc(100vh - ${navHeight}px)` }}
+      id="AboutUs"
+      className="relative z-10 flex h-screen flex-col items-center justify-center px-4 py-10 pt-0 text-center sm:px-10 sm:py-20"
+      // style={{ height: `calc(100vh - ${navHeight}px)` }}
     >
-      {/* Изображение показывается только на планшетах и ПК */}
+      <NavBarIKNT
+        links={homeLinks}
+        brand={{ title: "FanatGlenta", link: "/" }}
+      />
       <Image
         src={Photo}
         alt="Фото"
-        className="absolute left-1/2 top-1/2 z-[-1] hidden w-full max-w-[700px] -translate-x-1/2 -translate-y-1/2 sm:block"
+        className="absolute left-1/2 top-1/2 z-[-1] hidden h-auto max-h-[1080px] w-auto max-w-[1920px] -translate-x-1/2 -translate-y-1/2 sm:block"
       />
 
-      <div className="font-golos flex w-full max-w-[900px] flex-col items-center font-medium sm:items-start">
+      <div className="flex w-full max-w-[900px] flex-col items-center font-golos font-medium sm:items-start">
         {/* Текст "Получи" и "Высшее образование" */}
         <div className="flex flex-col items-center text-center sm:flex-row sm:items-start sm:gap-10 sm:text-left">
-          <span className="font-cormorant mt-2 text-lg italic text-[#E0E0E0] sm:text-2xl">
+          <span className="mt-2 font-cormorant text-lg italic text-[#E0E0E0] sm:text-2xl">
             Получи
           </span>
           <h2 className="text-3xl font-medium sm:text-6xl md:text-7xl">

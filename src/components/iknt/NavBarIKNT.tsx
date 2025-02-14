@@ -31,7 +31,7 @@ export default function Navbar({ brand, links }: NavbarProps) {
   };
 
   return (
-    <nav className="relative flex w-full items-center justify-between bg-[#191919] px-10 py-10 text-white">
+    <nav className="absolute top-0 flex w-full items-center justify-between bg-[#191919] px-10 py-10 text-white">
       {/* Логотип */}
       <Link href="/">
         <Image src={Photo} alt="Логотип" width={255} height={85} />
