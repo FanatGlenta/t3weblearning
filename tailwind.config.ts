@@ -7,6 +7,8 @@ export default {
     extend: {
       fontFamily: {
         sans: ["var(--font-geist-sans)", ...fontFamily.sans],
+        cormorant: ["Cormorant Garamond", ...fontFamily.serif],
+        golos: ["Golos Text", ...fontFamily.sans],
       },
     },
   },

@@ -1,8 +1,7 @@
 import "~/styles/globals.css";
 
-import { GeistSans } from "geist/font/sans";
 import { type Metadata } from "next";
-import Navbar from "~/components/Navbar";
+import NavBarIKNT from "~/components/iknt/NavBarIKNT";
 
 export const metadata: Metadata = {
   title: "Create T3 App",
@@ -10,18 +9,22 @@ export const metadata: Metadata = {
   icons: [{ rel: "icon", url: "/favicon.ico" }],
 };
 
-const ikntLinks: { title: string; link: string }[] = [
-  { title: "Новости", link: "/iknt/news" },
-  { title: "Преподаватели", link: "/iknt/teachers" },
-];
+const homeLinks = [
+  { title: "О нас", link: "/shop" },
+  { title: "Новости", link: "#news" },
+  { title: "Поступление", link: "/iknt" },
+] as const;
 
 export default function IKNTLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <>
-      <Navbar links={ikntLinks} />
-      <main className="bg-gray-100">{children}</main>
+      <NavBarIKNT
+        links={homeLinks}
+        brand={{ title: "FanatGlenta", link: "/" }}
+      />
+      <div className="bg-gray-100">{children}</div>
     </>
   );
 }
