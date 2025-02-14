@@ -20,28 +20,41 @@ export default function CheckoutPage() {
 
   const [formData, setFormData] = useState({
     address: "",
+    city: "",
+    postalCode: "",
     phone: "",
     passport: "",
+    deliveryType: "standard",
     paymentType: "cash",
     cardNumber: "",
     cardExpiry: "",
     cardCVV: "",
+    comment: "",
+    agreeToTerms: false,
   });
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >,
   ) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value, type } = e.target;
+    const newValue =
+      type === "checkbox" ? (e.target as HTMLInputElement).checked : value;
+    setFormData({ ...formData, [name]: newValue });
   };
 
   const handleSubmit = async () => {
-    if (!userId) return;
+    if (!userId || !formData.agreeToTerms) {
+      alert("Необходимо согласиться с условиями.");
+      return;
+    }
 
     try {
       const response = await fetch("/api/shop/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId, cart }),
+        body: JSON.stringify({ userId, cart, formData }),
       });
 
       if (response.ok) {
@@ -61,8 +74,9 @@ export default function CheckoutPage() {
   );
 
   const isSubmitDisabled =
-    formData.paymentType === "online" &&
-    (!formData.cardNumber || !formData.cardExpiry || !formData.cardCVV);
+    (formData.paymentType === "online" &&
+      (!formData.cardNumber || !formData.cardExpiry || !formData.cardCVV)) ||
+    !formData.agreeToTerms;
 
   return (
     <div className="mx-auto max-w-2xl p-4">
@@ -114,6 +128,30 @@ export default function CheckoutPage() {
           </div>
 
           <div className="mt-4">
+            <label className="block text-sm font-medium">Город</label>
+            <Input
+              type="text"
+              name="city"
+              placeholder="Введите город"
+              value={formData.city}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
+          <div className="mt-4">
+            <label className="block text-sm font-medium">Почтовый индекс</label>
+            <Input
+              type="number"
+              name="postalCode"
+              placeholder="Введите почтовый индекс"
+              value={formData.postalCode}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
+          <div className="mt-4">
             <label className="block text-sm font-medium">Телефон</label>
             <Input
               type="tel"
@@ -139,64 +177,44 @@ export default function CheckoutPage() {
             />
           </div>
 
-          {/* Выбор типа оплаты */}
           <div className="mt-4">
-            <label className="block text-sm font-medium">Тип оплаты</label>
+            <label className="block text-sm font-medium">
+              Выберите способ доставки
+            </label>
             <select
-              name="paymentType"
-              value={formData.paymentType}
+              name="deliveryType"
+              value={formData.deliveryType}
               onChange={handleChange}
               className="mt-1 w-full rounded border p-2"
             >
-              <option value="cash">Наличными при получении</option>
-              <option value="online">Онлайн оплата</option>
+              <option value="standard">Стандартная доставка</option>
+              <option value="express">Экспресс-доставка</option>
             </select>
           </div>
 
-          {/* Форма для банковской карты */}
-          {formData.paymentType === "online" && (
-            <div className="mt-4 rounded bg-gray-100 p-4">
-              <h2 className="font-bold">Оплата картой</h2>
+          <div className="mt-4">
+            <label className="block text-sm font-medium">
+              Комментарий к заказу
+            </label>
+            <textarea
+              name="comment"
+              placeholder="Ваши пожелания"
+              value={formData.comment}
+              onChange={handleChange}
+              className="mt-1 w-full rounded border p-2"
+            />
+          </div>
 
-              <div className="mt-2">
-                <label className="block text-sm font-medium">Номер карты</label>
-                <Input
-                  type="text"
-                  name="cardNumber"
-                  placeholder="1234 5678 9012 3456"
-                  value={formData.cardNumber}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-
-              <div className="mt-2 flex space-x-4">
-                <div className="w-1/2">
-                  <label className="block text-sm font-medium">Срок</label>
-                  <Input
-                    type="text"
-                    name="cardExpiry"
-                    placeholder="MM/YY"
-                    value={formData.cardExpiry}
-                    onChange={handleChange}
-                    required
-                  />
-                </div>
-
-                <div className="w-1/2">
-                  <label className="block text-sm font-medium">CVV</label>
-                  <Input
-                    type="text"
-                    name="cardCVV"
-                    placeholder="CVV"
-                    value={formData.cardCVV}
-                    onChange={handleChange}
-                    required
-                  />
-                </div>
-              </div>
-            </div>
-          )}
+          <div className="mt-4">
+            <input
+              type="checkbox"
+              name="agreeToTerms"
+              checked={formData.agreeToTerms}
+              onChange={handleChange}
+              className="mr-2"
+            />
+            <label className="text-sm">Я согласен с условиями доставки</label>
+          </div>
 
           <div className="mt-6 flex flex-col space-y-2">
             <button

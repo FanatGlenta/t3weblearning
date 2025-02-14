@@ -19,6 +19,7 @@ function getNavLinks(isAuthenticated: boolean, cartCount: number): NavLink[] {
         { title: "Профиль", link: "/shop/profile" },
       ]
     : [
+        { title: "Каталог", link: "/shop" },
         { title: "О компании", link: "/shop/about" },
         { title: "Вход", link: "/shop/login" },
         { title: "Регистрация", link: "/shop/registration" },

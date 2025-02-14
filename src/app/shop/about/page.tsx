@@ -144,7 +144,7 @@ export default function AboutPage() {
           className="mb-2 text-lg text-gray-700"
         >
           <strong>Телефон:</strong>{" "}
-          <a href="tel:+78001234567" className="text-blue-500">
+          <a href="tel:" className="text-blue-500">
             +7 (800) 123-45-67
           </a>
         </motion.p>
@@ -165,17 +165,29 @@ export default function AboutPage() {
           className="list-disc pl-6 text-lg text-gray-700"
         >
           <li>
-            <a href="t.me/mezex_finance" className="text-blue-500">
+            <a
+              href="https://t.me/fanatglenta"
+              className="text-blue-500"
+              target="_blank"
+            >
               Telegram
             </a>
           </li>
           <li>
-            <a href="https://vk.com/mezex_finance" className="text-blue-500">
+            <a
+              href="https://vk.com/fanatglenta"
+              className="text-blue-500"
+              target="_blank"
+            >
               ВКонтакте
             </a>
           </li>
           <li>
-            <a href="https://instagram.com/" className="text-blue-500">
+            <a
+              href="https://instagram.com/"
+              className="text-blue-500"
+              target="_blank"
+            >
               Instagram
             </a>
           </li>
