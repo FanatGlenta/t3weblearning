@@ -122,6 +122,37 @@ export const orderItems = createTable(
   }),
 );
 
+export const news = createTable(
+  "news",
+  {
+    id: integer("id").primaryKey().generatedByDefaultAsIdentity(),
+    title: varchar("title", { length: 255 }).notNull(),
+    description: text("description").notNull(),
+    imageUrl: varchar("image_url", { length: 255 }).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+  },
+  (news) => ({
+    titleIndex: index("news_title_idx").on(news.title),
+  }),
+);
+
+export const users = createTable("user", {
+  id: varchar("id", { length: 255 }).notNull().primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  email: varchar("email", { length: 255 }).notNull(),
+  password: text("password").notNull(),
+  emailVerified: timestamp("email_verified", {
+    mode: "date",
+    withTimezone: true,
+  }).default(sql`CURRENT_TIMESTAMP`),
+});
+
+export const usersRelations = relations(users, ({ many }) => ({
+  accounts: many(accounts),
+}));
+
 export const posts = createTable(
   "post",
   {
@@ -142,21 +173,6 @@ export const posts = createTable(
     nameIndex: index("name_idx").on(example.name),
   }),
 );
-
-export const users = createTable("user", {
-  id: varchar("id", { length: 255 }).notNull().primaryKey(),
-  name: varchar("name", { length: 255 }).notNull(),
-  email: varchar("email", { length: 255 }).notNull(),
-  password: text("password").notNull(),
-  emailVerified: timestamp("email_verified", {
-    mode: "date",
-    withTimezone: true,
-  }).default(sql`CURRENT_TIMESTAMP`),
-});
-
-export const usersRelations = relations(users, ({ many }) => ({
-  accounts: many(accounts),
-}));
 
 export const accounts = createTable(
   "account",
