@@ -16,7 +16,6 @@ export default function IKNTMainBlock() {
     <section
       id="AboutUs"
       className="relative z-10 flex h-screen flex-col items-center justify-center px-4 py-10 pt-0 text-center sm:px-10 sm:py-20"
-      // style={{ height: `calc(100vh - ${navHeight}px)` }}
     >
       <NavBarIKNT
         links={homeLinks}

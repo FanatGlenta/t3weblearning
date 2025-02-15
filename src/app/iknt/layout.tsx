@@ -13,7 +13,7 @@ export default function IKNTLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <>
-      <div className="bg-[#191919]">{children}</div>
+      <div className="h-full bg-[#191919]">{children}</div>
     </>
   );
 }

@@ -4,10 +4,10 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 
 interface NewsCardProps {
-  id: number; // Исправил тип с string на number, так как id теперь integer в БД
+  id: number;
   title: string;
   description: string;
-  imageUrl: string; // Исправил с `image` на `imageUrl`, чтобы соответствовать БД
+  imageUrl?: string; // Сделаем imageUrl необязательным
 }
 
 export default function NewsCard({
@@ -17,6 +17,7 @@ export default function NewsCard({
   imageUrl,
 }: NewsCardProps) {
   const router = useRouter();
+  const fallbackImage = "/images/placeholder.png";
 
   return (
     <div
@@ -25,7 +26,16 @@ export default function NewsCard({
     >
       {/* Картинка новости */}
       <div className="relative h-48 w-full sm:h-60">
-        <Image src={imageUrl} alt={title} fill className="object-cover" />
+        {imageUrl && imageUrl.trim() !== "" ? (
+          <Image src={imageUrl} alt={title} fill className="object-cover" />
+        ) : (
+          <Image
+            src={fallbackImage}
+            alt="No image available"
+            fill
+            className="object-cover"
+          />
+        )}
       </div>
 
       {/* Контент */}

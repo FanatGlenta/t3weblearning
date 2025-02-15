@@ -14,6 +14,39 @@ export const createTable = pgTableCreator(
   (name) => `test_next_app_gallery_${name}`,
 );
 
+export const news = createTable(
+  "news",
+  {
+    id: integer("id").primaryKey().generatedByDefaultAsIdentity(),
+    title: varchar("title", { length: 255 }).notNull(),
+    description: text("description").notNull(),
+    previewImageUrl: varchar("preview_image_url", { length: 255 }).notNull(), // Главное изображение
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).$onUpdate(
+      () => new Date(),
+    ),
+  },
+  (news) => ({
+    titleIndex: index("news_title_idx").on(news.title),
+  }),
+);
+
+export const newsImages = createTable(
+  "news_images",
+  {
+    id: integer("id").primaryKey().generatedByDefaultAsIdentity(),
+    newsId: integer("news_id")
+      .notNull()
+      .references(() => news.id, { onDelete: "cascade" }), // Привязка к новости
+    imageUrl: varchar("image_url", { length: 255 }).notNull(), // Дополнительные изображения
+  },
+  (newsImages) => ({
+    newsIdIndex: index("news_images_news_id_idx").on(newsImages.newsId),
+  }),
+);
+
 export const products = createTable(
   "product",
   {
@@ -122,37 +155,6 @@ export const orderItems = createTable(
   }),
 );
 
-export const news = createTable(
-  "news",
-  {
-    id: integer("id").primaryKey().generatedByDefaultAsIdentity(),
-    title: varchar("title", { length: 255 }).notNull(),
-    description: text("description").notNull(),
-    imageUrl: varchar("image_url", { length: 255 }).notNull(),
-    createdAt: timestamp("created_at", { withTimezone: true })
-      .default(sql`CURRENT_TIMESTAMP`)
-      .notNull(),
-  },
-  (news) => ({
-    titleIndex: index("news_title_idx").on(news.title),
-  }),
-);
-
-export const users = createTable("user", {
-  id: varchar("id", { length: 255 }).notNull().primaryKey(),
-  name: varchar("name", { length: 255 }).notNull(),
-  email: varchar("email", { length: 255 }).notNull(),
-  password: text("password").notNull(),
-  emailVerified: timestamp("email_verified", {
-    mode: "date",
-    withTimezone: true,
-  }).default(sql`CURRENT_TIMESTAMP`),
-});
-
-export const usersRelations = relations(users, ({ many }) => ({
-  accounts: many(accounts),
-}));
-
 export const posts = createTable(
   "post",
   {
@@ -173,6 +175,21 @@ export const posts = createTable(
     nameIndex: index("name_idx").on(example.name),
   }),
 );
+
+export const users = createTable("user", {
+  id: varchar("id", { length: 255 }).notNull().primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  email: varchar("email", { length: 255 }).notNull(),
+  password: text("password").notNull(),
+  emailVerified: timestamp("email_verified", {
+    mode: "date",
+    withTimezone: true,
+  }).default(sql`CURRENT_TIMESTAMP`),
+});
+
+export const usersRelations = relations(users, ({ many }) => ({
+  accounts: many(accounts),
+}));
 
 export const accounts = createTable(
   "account",
