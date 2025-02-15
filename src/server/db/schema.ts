@@ -14,6 +14,13 @@ export const createTable = pgTableCreator(
   (name) => `test_next_app_gallery_${name}`,
 );
 
+export const teachers = createTable("teachers", {
+  id: integer("id").primaryKey().generatedByDefaultAsIdentity(),
+  name: varchar("name", { length: 255 }).notNull(),
+  position: varchar("position", { length: 255 }).notNull(),
+  imageUrl: varchar("image_url", { length: 255 }).notNull(),
+});
+
 export const news = createTable(
   "news",
   {

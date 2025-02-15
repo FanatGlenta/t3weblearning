@@ -30,10 +30,10 @@ export default function IKNTMainBlock() {
       <div className="flex w-full max-w-[900px] flex-col items-center font-golos font-medium sm:items-start">
         {/* Текст "Получи" и "Высшее образование" */}
         <div className="flex flex-col items-center text-center sm:flex-row sm:items-start sm:gap-10 sm:text-left">
-          <span className="mt-2 font-cormorant text-lg italic text-[#E0E0E0] sm:text-2xl">
+          <span className="mt-2 font-cormorant text-4xl italic text-[#E0E0E0] sm:text-4xl">
             Получи
           </span>
-          <h2 className="text-3xl font-medium sm:text-6xl md:text-7xl">
+          <h2 className="text-nowrap text-3xl font-medium sm:text-6xl md:text-7xl">
             Высшее образование
           </h2>
         </div>
@@ -53,7 +53,7 @@ export default function IKNTMainBlock() {
         </div>
 
         {/* Текст "Первый IT на Урале" (На мобильных он теперь снизу) */}
-        <p className="mt-6 text-left text-lg text-[#E0E0E0] sm:absolute sm:bottom-20 sm:left-20 sm:text-2xl">
+        <p className="mt-6 text-left text-xl text-[#E0E0E0] sm:absolute sm:bottom-20 sm:left-20 sm:text-2xl">
           Первый IT на <br className="hidden sm:block" />
           Урале
         </p>

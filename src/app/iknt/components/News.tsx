@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import NewsSVG from "~/assets/news";
 import NewsCard from "~/components/iknt/NewsCard";
 import Loader from "~/components/Loader";
 
@@ -47,7 +48,16 @@ export default function NewsSection() {
           <Loader />
         </div>
       ) : visibleNews.length === 0 ? (
-        <p className="mt-6 text-white">Новостей пока нет.</p>
+        // Заглушка, если новостей пока нет
+        <div className="mt-10 flex flex-col items-center text-gray-400">
+          <NewsSVG />
+          <p className="mt-6 text-xl font-semibold text-gray-300">
+            Новостей пока нет
+          </p>
+          <p className="text-md mt-2 text-gray-500">
+            Следите за обновлениями, скоро что-то появится!
+          </p>
+        </div>
       ) : (
         <>
           <div className="mt-10 grid w-full max-w-6xl grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">

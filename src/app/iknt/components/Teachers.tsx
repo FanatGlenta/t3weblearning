@@ -1,40 +1,20 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import TeacherSVG from "~/assets/teacher";
 import TeacherCard from "~/components/iknt/TeacherCard";
-
-interface Teacher {
-  id: string;
-  name: string;
-  position: string;
-  image: string;
-}
+import { fetchTeachers, Teacher } from "~/services/getTeachers";
 
 export default function TeachersSection() {
   const [teachers, setTeachers] = useState<Teacher[]>([]);
 
   useEffect(() => {
-    // Здесь можно сделать запрос к API, пока используем моковые данные
-    setTeachers([
-      {
-        id: "1",
-        name: "Иванов Иван Иванович",
-        position: "Профессор кафедры ИТ",
-        image: "/images/teacher1.jpg",
-      },
-      {
-        id: "2",
-        name: "Петров Петр Петрович",
-        position: "Доцент кафедры программирования",
-        image: "/images/teacher2.jpg",
-      },
-      {
-        id: "3",
-        name: "Сидорова Анна Викторовна",
-        position: "Старший преподаватель кафедры ИИ",
-        image: "/images/teacher3.jpg",
-      },
-    ]);
+    async function loadTeachers() {
+      const data = await fetchTeachers();
+      setTeachers(data);
+    }
+
+    loadTeachers();
   }, []);
 
   return (
@@ -47,12 +27,30 @@ export default function TeachersSection() {
         Наши <span className="text-blue-400">преподаватели</span>
       </h2>
 
-      {/* Сетка с карточками преподавателей */}
-      <div className="mt-10 grid w-full max-w-6xl grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
-        {teachers.map((teacher) => (
-          <TeacherCard key={teacher.id} {...teacher} />
-        ))}
-      </div>
+      {/* Если есть преподаватели - показываем карточки */}
+      {teachers.length > 0 ? (
+        <div className="mt-10 grid w-full max-w-6xl grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
+          {teachers.map(({ id, name, position, imageUrl }) => (
+            <TeacherCard
+              key={id}
+              name={name}
+              position={position}
+              image={imageUrl}
+            />
+          ))}
+        </div>
+      ) : (
+        // Заглушка, если преподавателей нет
+        <div className="mt-10 flex flex-col items-center text-gray-400">
+          <TeacherSVG />
+          <p className="mt-6 text-xl font-semibold text-gray-300">
+            Преподаватели пока не добавлены
+          </p>
+          <p className="text-md mt-2 text-gray-500">
+            Скоро они появятся, оставайтесь с нами!
+          </p>
+        </div>
+      )}
 
       {/* Декоративная линия */}
       <div className="absolute bottom-0 left-1/2 h-1 w-1/2 -translate-x-1/2 bg-blue-400"></div>

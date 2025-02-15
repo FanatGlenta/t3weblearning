@@ -26,7 +26,10 @@ const advantages = [
 
 const Advantages: React.FC = () => {
   return (
-    <section className="flex justify-center px-14 py-28 text-white">
+    <section
+      id="aboutUs"
+      className="flex justify-center px-14 py-28 text-white"
+    >
       <div className="grid w-full gap-10">
         {advantages.map((adv, index) => (
           <div
