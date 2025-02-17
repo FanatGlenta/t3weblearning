@@ -6,8 +6,10 @@ import IkntFaculty from "./components/IkntFaculty";
 import Advantages from "./components/Advantages";
 import NewsSection from "./components/News";
 import TeachersSection from "./components/Teachers";
+import { useTranslation } from "react-i18next";
 
 export default function IKNTPage() {
+  const { t } = useTranslation();
   return (
     <div className="relative h-full bg-[#191919] text-white">
       {/* Главный блок */}
@@ -30,7 +32,7 @@ export default function IKNTPage() {
 
       {/* Футер */}
       <footer className="bg-[#191919] py-4 text-center text-gray-400 sm:py-6">
-        © 2025 ИКНТ. Все права защищены.
+        {t("footer.copyright")}
       </footer>
     </div>
   );

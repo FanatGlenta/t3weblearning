@@ -1,0 +1,51 @@
+{
+  "mainPage": {
+    "about_us": "Who We Are",
+    "news": "Latest News",
+    "teachers": "Our Teachers",
+    "get": "Obtain",
+    "higher_education": "Advanced Education",
+    "in_it": "in the IT Field",
+    "first_it_in_urals": "The Leading IT Hub in the Urals",
+    "enroll": "Apply Now"
+  },
+  "aboutUs": {
+    "mission": "The main goal of IKNT is to create conditions for acquiring knowledge that allow our graduates to find their career path in the vast world of information technology and fully unlock their intellectual potential.",
+    "director": "Avtaykin S.V., Director of IKNT"
+  },
+  "IkntFaculty": {
+    "software_security": "Are you interested in software development or cybersecurity?",
+    "ai_devops_gamedev": "Or maybe AI, DevOps, GameDev, or Unmanned Systems?",
+    "enroll": "Enroll!"
+  },
+  "Advantages": {
+    "adv01_title": "Institute of Computer Science and Technology",
+    "adv01_description": "Trains highly qualified specialists for the IT industry of the Perm region and the Russian Federation in the field of IT development and Information Security.",
+    "adv01_highlight": "highly qualified specialists",
+
+    "adv02_title": "We support",
+    "adv02_description": "Career growth of students and facilitate the development of their practical skills through internships in partner companies.",
+    "adv02_highlight": "Career growth",
+
+    "adv03_title": "IKNT was established in 2022",
+    "adv03_description": "We are one of the largest IT institutes in the Urals, with more than 1000 students enrolled.",
+    "adv03_highlight": "more than 1000 students"
+  },
+
+  "news": {
+    "latest_news": "Latest",
+    "news_highlight": "News",
+    "no_news": "No news yet",
+    "no_news_description": "Stay tuned, something new will appear soon!",
+    "show_more": "Show more"
+  },
+  "teachers": {
+    "title": "Our",
+    "highlight": "Teachers",
+    "no_teachers": "Teachers have not been added yet",
+    "no_teachers_description": "They will appear soon, stay with us!"
+  },
+  "footer": {
+    "copyright": "© 2025 IKNT. All rights reserved."
+  }
+}

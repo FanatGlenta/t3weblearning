@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
+import { motion } from "framer-motion";
 import NewsSVG from "~/assets/news";
 import NewsCard from "~/components/iknt/NewsCard";
 import Loader from "~/components/Loader";
@@ -13,25 +15,33 @@ interface NewsItem {
 }
 
 export default function NewsSection() {
+  const { t } = useTranslation();
   const [news, setNews] = useState<NewsItem[]>([]);
-  const [visibleNews, setVisibleNews] = useState<NewsItem[]>([]);
+  const [visibleCount, setVisibleCount] = useState(3); // Начинаем с 3 новостей
   const [loading, setLoading] = useState(true);
-  const [showMore, setShowMore] = useState(false);
 
   useEffect(() => {
     fetch("/api/iknt/news/getNews")
       .then((res) => res.json())
       .then((data) => {
-        setNews(data.slice(0, 6)); // Загружаем максимум 6 новостей
-        setVisibleNews(data.slice(0, 3)); // Показываем сначала 3 новости
+        setNews(data.slice(0, 12)); // Ограничиваем максимум 12 новостей
         setLoading(false);
       })
       .catch(() => setLoading(false));
   }, []);
 
   const handleShowMore = () => {
-    setVisibleNews(news.slice(0, 6)); // Показываем все 6 новостей
-    setShowMore(true);
+    setVisibleCount((prev) => Math.min(prev + 3, news.length));
+  };
+
+  // Анимация появления карточек
+  const cardVariants = {
+    hidden: { opacity: 0, y: 50 },
+    visible: (i: number) => ({
+      opacity: 1,
+      y: 0,
+      transition: { delay: i * 0.2, duration: 0.6, ease: "easeOut" },
+    }),
   };
 
   return (
@@ -40,45 +50,63 @@ export default function NewsSection() {
       className="relative flex flex-col items-center justify-center bg-[#191919] px-6 py-16 text-center"
     >
       <h2 className="text-3xl font-bold text-white sm:text-5xl">
-        Последние <span className="text-blue-400">новости</span>
+        {t("news.latest_news")}{" "}
+        <span className="text-blue-400">{t("news.news_highlight")}</span>
       </h2>
 
       {loading ? (
         <div>
           <Loader />
         </div>
-      ) : visibleNews.length === 0 ? (
+      ) : news.length === 0 ? (
         // Заглушка, если новостей пока нет
         <div className="mt-10 flex flex-col items-center text-gray-400">
           <NewsSVG />
           <p className="mt-6 text-xl font-semibold text-gray-300">
-            Новостей пока нет
+            {t("news.no_news")}
           </p>
           <p className="text-md mt-2 text-gray-500">
-            Следите за обновлениями, скоро что-то появится!
+            {t("news.no_news_description")}
           </p>
         </div>
       ) : (
         <>
-          <div className="mt-10 grid w-full max-w-6xl grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
-            {visibleNews.map((newsItem) => (
-              <NewsCard
+          <motion.div
+            className="mt-10 grid w-full max-w-6xl grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3"
+            initial="hidden"
+            animate="visible"
+            variants={{ visible: { transition: { staggerChildren: 0.2 } } }}
+          >
+            {news.slice(0, visibleCount).map((newsItem, index) => (
+              <motion.div
                 key={newsItem.id}
-                id={newsItem.id}
-                title={newsItem.title}
-                description={newsItem.description}
-                imageUrl={newsItem.previewImageUrl}
-              />
+                custom={index}
+                variants={cardVariants}
+              >
+                <NewsCard
+                  id={newsItem.id}
+                  title={newsItem.title}
+                  description={newsItem.description}
+                  imageUrl={newsItem.previewImageUrl}
+                />
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
 
-          {!showMore && news.length > 3 && (
-            <button
+          {/* Кнопка "Показать еще", если есть скрытые новости */}
+          {visibleCount < news.length && (
+            <motion.button
               onClick={handleShowMore}
               className="mt-6 rounded bg-blue-500 px-6 py-3 text-white transition hover:bg-blue-600"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{
+                opacity: 1,
+                y: 0,
+                transition: { duration: 0.6, ease: "easeOut" },
+              }}
             >
-              Показать ещё
-            </button>
+              {t("news.show_more")}
+            </motion.button>
           )}
         </>
       )}

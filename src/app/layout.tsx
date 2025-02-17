@@ -2,6 +2,8 @@ import "~/styles/globals.css";
 import { GeistSans } from "geist/font/sans";
 import { type Metadata } from "next";
 import SessionProviderWrapper from "~/components/SessionProviderWrapper";
+import I18nProvider from "~/components/I18nProvider";
+// Новый клиентский компонент
 
 export const metadata: Metadata = {
   title: "Create T3 App",
@@ -16,7 +18,9 @@ export default function RootLayout({
     <html lang="en" className={`${GeistSans.variable} h-full`}>
       <body className="flex h-full flex-col">
         <SessionProviderWrapper>
-          <main className="flex-1 bg-gray-100">{children}</main>
+          <I18nProvider>
+            <main className="flex-1 bg-gray-100">{children}</main>
+          </I18nProvider>
         </SessionProviderWrapper>
       </body>
     </html>
