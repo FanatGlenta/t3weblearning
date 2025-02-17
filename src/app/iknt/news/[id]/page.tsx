@@ -21,6 +21,10 @@ export default function NewsPage() {
   const [news, setNews] = useState<NewsItem | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const getFileName = (url: string) => {
+    return url.split("/").pop();
+  };
+
   useEffect(() => {
     if (!params || !params.id) return;
 
@@ -76,6 +80,7 @@ export default function NewsPage() {
                       className="object-cover"
                     />
                   </AspectRatio>
+                  <span>{getFileName(imgUrl)}</span>
                 </div>
               ))
             : news.previewImageUrl && (

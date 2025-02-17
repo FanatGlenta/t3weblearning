@@ -98,13 +98,13 @@ export default function Navbar({ brand, links }: NavbarProps) {
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-16 border-none bg-[#191919] text-white">
             <DropdownMenuItem
-              className="bg-[#191919] text-center text-white"
+              className="flex justify-center bg-[#191919] text-center text-white"
               onClick={() => changeLanguage("en")}
             >
               EN
             </DropdownMenuItem>
             <DropdownMenuItem
-              className="bg-[#191919] text-center text-white"
+              className="flex justify-center bg-[#191919] text-center text-white"
               onClick={() => changeLanguage("ru")}
             >
               RU

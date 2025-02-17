@@ -4,8 +4,8 @@
     "news": "Latest News",
     "teachers": "Our Teachers",
     "get": "Obtain",
-    "higher_education": "Advanced Education",
-    "in_it": "in the IT Field",
+    "higher_education": "Advanced Education in",
+    "in_it": " IT Field",
     "first_it_in_urals": "The Leading IT Hub in the Urals",
     "enroll": "Apply Now"
   },
@@ -16,7 +16,7 @@
   "IkntFaculty": {
     "software_security": "Are you interested in software development or cybersecurity?",
     "ai_devops_gamedev": "Or maybe AI, DevOps, GameDev, or Unmanned Systems?",
-    "enroll": "Enroll!"
+    "enroll": "Apply Now!"
   },
   "Advantages": {
     "adv01_title": "Institute of Computer Science and Technology",

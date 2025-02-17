@@ -44,7 +44,7 @@ export default function IKNTMainBlock() {
 
         {/* Текст "в IT-сфере" и кнопка со стрелкой */}
         <div className="mt-4 flex w-full flex-col items-center justify-center sm:flex-row sm:justify-between">
-          <h2 className="text-3xl font-bold sm:text-6xl md:text-7xl">
+          <h2 className="text-3xl sm:text-6xl md:text-7xl">
             {t("mainPage.in_it")}
           </h2>
           <button className="mt-4 sm:mt-0">
